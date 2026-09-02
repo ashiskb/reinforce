@@ -1,0 +1,2538 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="04--gymnasium-A-clever-CartPole_files/libs/clipboard/clipboard.min.js"></script>
+<script src="04--gymnasium-A-clever-CartPole_files/libs/quarto-html/tabby.min.js"></script>
+<script src="04--gymnasium-A-clever-CartPole_files/libs/quarto-html/popper.min.js"></script>
+<script src="04--gymnasium-A-clever-CartPole_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="04--gymnasium-A-clever-CartPole_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="04--gymnasium-A-clever-CartPole_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="04--gymnasium-A-clever-CartPole_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="04--gymnasium-A-clever-CartPole_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="04--gymnasium-A-clever-CartPole_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="04--gymnasium-A-clever-CartPole_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.10.18">
+
+  <meta name="author" content="Ashis Kumer Biswas, Ph.D.">
+  <title>Towards building a Cartpole Agent – a slightly clever one!</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="04--gymnasium-A-clever-CartPole_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="04--gymnasium-A-clever-CartPole_files/libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="04--gymnasium-A-clever-CartPole_files/libs/revealjs/dist/theme/quarto-2740581606dc327e82f18f789b69d8a0.css">
+  <link href="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Towards building a Cartpole Agent – a slightly clever one!</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Ashis Kumer Biswas, Ph.D.
+</div>
+</div>
+</div>
+
+</section>
+<section id="we-have-worked-on-the-following-code-to-build-the-random-agent-right" class="slide level2 scrollable">
+<h2>We have worked on the following code to build the random agent, right?</h2>
+<div id="7b10c664" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="" aria-label="1"></a><span class="co"># Save this codeblock as: CartPole-v1-random.py</span></span>
+<span id="cb1-2"><a href="" aria-label="2"></a><span class="co"># Run it with Python Interpreter&gt; python CartPole-v1-random.py</span></span>
+<span id="cb1-3"><a href="" aria-label="3"></a><span class="im">import</span> gymnasium <span class="im">as</span> gym</span>
+<span id="cb1-4"><a href="" aria-label="4"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb1-5"><a href="" aria-label="5"></a></span>
+<span id="cb1-6"><a href="" aria-label="6"></a><span class="co">#number of timesteps</span></span>
+<span id="cb1-7"><a href="" aria-label="7"></a>n <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb1-8"><a href="" aria-label="8"></a></span>
+<span id="cb1-9"><a href="" aria-label="9"></a><span class="co">#Since we pass render_mode="human", </span></span>
+<span id="cb1-10"><a href="" aria-label="10"></a><span class="co">#   you should see a window pop up rendering the environment.</span></span>
+<span id="cb1-11"><a href="" aria-label="11"></a>env <span class="op">=</span> gym.make(<span class="st">"CartPole-v1"</span>, render_mode<span class="op">=</span><span class="st">"human"</span>)</span>
+<span id="cb1-12"><a href="" aria-label="12"></a></span>
+<span id="cb1-13"><a href="" aria-label="13"></a>env.action_space.seed(<span class="dv">42</span>)</span>
+<span id="cb1-14"><a href="" aria-label="14"></a></span>
+<span id="cb1-15"><a href="" aria-label="15"></a>observation, info <span class="op">=</span> env.reset(seed<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb1-16"><a href="" aria-label="16"></a></span>
+<span id="cb1-17"><a href="" aria-label="17"></a><span class="cf">for</span> _ <span class="kw">in</span> tqdm(<span class="bu">range</span>(n)):</span>
+<span id="cb1-18"><a href="" aria-label="18"></a>    <span class="co">#Pick a random action from the action spaces</span></span>
+<span id="cb1-19"><a href="" aria-label="19"></a>    action <span class="op">=</span> env.action_space.sample()</span>
+<span id="cb1-20"><a href="" aria-label="20"></a></span>
+<span id="cb1-21"><a href="" aria-label="21"></a>    <span class="co">#Act the action and then observe</span></span>
+<span id="cb1-22"><a href="" aria-label="22"></a>    observation, reward, terminated, truncated, info <span class="op">=</span> env.step(action)</span>
+<span id="cb1-23"><a href="" aria-label="23"></a>    </span>
+<span id="cb1-24"><a href="" aria-label="24"></a>    <span class="co">#Check for terminated or truncated.</span></span>
+<span id="cb1-25"><a href="" aria-label="25"></a>    <span class="cf">if</span> terminated <span class="kw">or</span> truncated:</span>
+<span id="cb1-26"><a href="" aria-label="26"></a>        observation, info <span class="op">=</span> env.reset()</span>
+<span id="cb1-27"><a href="" aria-label="27"></a>        <span class="co">#break</span></span>
+<span id="cb1-28"><a href="" aria-label="28"></a></span>
+<span id="cb1-29"><a href="" aria-label="29"></a>env.close()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="here-is-how-the-random-agent-works" class="slide level2 scrollable">
+<h2>Here is how the random agent works?</h2>
+<p><a href="videos/CartPole-v1-random.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img data-src="videos/CartPole-v1-random.gif"></a></p>
+</section>
+<section id="we-will-take-a-peek-at-our-first-rl-algorithm-q-learning" class="slide level2 scrollable">
+<h2>We will take a peek at our first RL algorithm: Q-learning</h2>
+<ul>
+<li>Q-learning is an immediate next step towards improving our <code>random policy agent</code>.
+<ul>
+<li>A <code>random policy agent</code>, like ours picks an actions, <span class="math inline">\(a\)</span> randomly:</li>
+</ul></li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="" aria-label="1"></a>action <span class="op">=</span> env.action_space.sample()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><p>If you missed how we built the <code>random policy agent</code>, please go watch previous lecture.</p></li>
+<li><p>While, a <code>Q-learning</code> based trained agent, standing at state, <span class="math inline">\(s\)</span> would pick the action, <span class="math inline">\(a\)</span> that maximizes <span class="math inline">\(Q(s,a)\)</span> value. In other words: policy to take an action <span class="math inline">\(a\)</span> at state <span class="math inline">\(s\)</span> is <span class="math inline">\(\pi(s) = \underset{a}{\text{arg max}}\quad Q(s,a)\)</span>:</p>
+<ul>
+<li>Please note,
+<ul>
+<li><span class="math inline">\(s_i\)</span> is one of the observed state from the set of Observation Space, <span class="math inline">\(S = \{s_1, s_2, \cdots, s_m\}\)</span>.</li>
+<li><span class="math inline">\(a_i\)</span> is one of the action from the set of Action space, <span class="math inline">\(A = \{a_1, a_2, \cdots, a_m\}\)</span>.</li>
+</ul></li>
+<li>So, the Q-table is a simple lookup matrix to store the expected future rewards, called the <code>Q-values</code>, for every possible action, <span class="math inline">\(a_j\)</span> in every possible state, <span class="math inline">\(s_i\)</span>.</li>
+<li>The structure of a <span class="math inline">\(Q(s,a)\)</span> table looks like below:</li>
+</ul></li>
+</ul>
+<table class="caption-top">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><span class="math inline">\(Q\)</span>-table</th>
+<th><span class="math inline">\(a_1\)</span></th>
+<th><span class="math inline">\(a_2\)</span></th>
+<th><span class="math inline">\(\cdot\)</span></th>
+<th><span class="math inline">\(a_n\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(s_1\)</span></td>
+<td><span class="math inline">\(Q(s_1,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_1,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_1,a_n)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s_2\)</span></td>
+<td><span class="math inline">\(Q(s_2,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_2,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_2,a_n)\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s_3\)</span></td>
+<td><span class="math inline">\(Q(s_3,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_3,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_3,a_n)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s_4\)</span></td>
+<td><span class="math inline">\(Q(s_4,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_4,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_4,a_n)\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\vdots\)</span></td>
+<td><span class="math inline">\(\vdots\)</span></td>
+<td><span class="math inline">\(\vdots\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(\vdots\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s_m\)</span></td>
+<td><span class="math inline">\(Q(s_m,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_m,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_m,a_n)\)</span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Training the RL agent with <code>Q-learning</code> means updating the <span class="math inline">\(Q\)</span> table such that the total reward is maximized.</li>
+</ul>
+</section>
+<section id="please-recall-the-action-space-of-cartpole-v1" class="slide level2 scrollable">
+<h2>Please recall the Action Space of CartPole-v1</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="figs/cart_pole.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img data-src="figs/cart_pole.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+<ul>
+<li>The set of Action space is discrete, having only 2 possible ations: <span class="math inline">\(A = \{0, 1\}\)</span></li>
+<li>The action is a <code>ndarray</code> with shape (1,) which can take values <code>{0, 1}</code> indicating the direction of the fixed force the cart is pushed with.
+<ul>
+<li>0: Push cart to the left</li>
+<li>1: Push cart to the right</li>
+</ul></li>
+</ul>
+</section>
+<section id="observation-space-of-cartpole-v1" class="slide level2 scrollable">
+<h2>Observation Space of CartPole-v1</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="figs/cart_pole.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img data-src="figs/cart_pole.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+<ul>
+<li>The observation is a ndarray with shape (4,) with the values corresponding to the following positions and velocities:</li>
+</ul>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Num</th>
+<th>Observation</th>
+<th>Min</th>
+<th>Max</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>Cart Position</td>
+<td>-4.8</td>
+<td>4.8</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>Cart Velocity</td>
+<td><span class="math inline">\(-\infty\)</span></td>
+<td><span class="math inline">\(+\infty\)</span></td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>Pole Angle</td>
+<td><span class="math inline">\({-0.418}^c = -{24}^o\)</span></td>
+<td><span class="math inline">\(+{0.418}^c={24}^o\)</span></td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>Pole Angular Velocity</td>
+<td><span class="math inline">\(-\infty\)</span></td>
+<td><span class="math inline">\(+\infty\)</span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Since, <span class="math inline">\(Q(s,a)\)</span> table is discrete, we have one complication!
+<ul>
+<li>CartPole-v1 has the continuous four-dimensional observation space.</li>
+</ul></li>
+<li>Remedy: in our first version of the clever RL agent training:
+<ul>
+<li>we can simply discretize the observations into bins.</li>
+</ul></li>
+</ul>
+</section>
+<section id="a-refresher-reinforcement-learning-in-one-picture" class="slide level2 scrollable">
+<h2>A refresher: Reinforcement Learning in one picture</h2>
+<p><a href="figs/AE_loop.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="figs/AE_loop.png" width="400"></a></p>
+<p>In reinforcement learning, an agent repeatedly interacts with an environment:</p>
+<p><span class="math display">\[
+\boxed{
+\text{State }s_t
+\rightarrow
+\text{Action }a_t
+\rightarrow
+\text{Reward }r_{t+1}
+\rightarrow
+\text{New State }s_{t+1}
+}
+\]</span></p>
+<p>For CartPole:</p>
+<ul>
+<li><strong>Agent:</strong> our Python program</li>
+<li><strong>Environment:</strong> <code>CartPole-v1</code></li>
+<li><strong>State:</strong> position and motion (velocity + angle) of the cart and pole</li>
+<li><strong>Action:</strong> push cart left or right</li>
+<li><strong>Reward:</strong> +1 for every timestep the pole remains balanced</li>
+<li><strong>Goal:</strong> keep collecting reward for as long as possible</li>
+</ul>
+<blockquote>
+<p>The interesting part is that we do not tell the agent exactly how to balance the pole. We let it learn which actions tend to produce good future outcomes.</p>
+</blockquote>
+</section>
+<section id="markov-decision-process-the-rl-framework" class="slide level2 scrollable">
+<h2>Markov Decision Process — the RL framework</h2>
+<p>Let’s try to answer the following question:</p>
+<blockquote>
+<p><strong>What information does the agent need in order to learn from its interaction with CartPole?</strong></p>
+</blockquote>
+<p>A Markov Decision Process (MDP) is simply a way to describe the repeated interaction between an agent and an environment.</p>
+<p>At each step:</p>
+<p><span class="math display">\[
+\boxed{
+\text{State} \rightarrow \text{Action} \rightarrow \text{Reward + Next State}
+}
+\]</span></p>
+<p>For CartPole:</p>
+<ul>
+<li><strong>State <span class="math inline">\(s_t\)</span>:</strong> What does the environment look like right now?</li>
+<li><strong>Action <span class="math inline">\(a_t\)</span>:</strong> What should the agent do?</li>
+<li><strong>Reward <span class="math inline">\(r_{t+1}\)</span>:</strong> How good was that action?</li>
+<li><strong>Next state <span class="math inline">\(s_{t+1}\)</span>:</strong> What happened after the action?</li>
+</ul>
+<p>So one interaction looks like:</p>
+<p><span class="math display">\[
+s_t
+\overset{a_t}{\longrightarrow}
+(r_{t+1},s_{t+1})
+\]</span></p>
+<p>In our Python code, this happens here:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="" aria-label="1"></a>next_observation, reward, terminated, truncated, info <span class="op">=</span> env.step(action)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The agent gives Gymnasium an <strong>action</strong>, and the environment returns the <strong>next state and reward</strong>.</p>
+<h4 class="scrollable" id="what-is-the-state-in-cartpole">What is the state in CartPole?</h4>
+<p>The state contains four pieces of information:</p>
+<p><span class="math display">\[
+s_t =
+[
+\text{cart position},
+\text{cart velocity},
+\text{pole angle},
+\text{pole angular velocity}
+]
+\]</span></p>
+<p>For example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb4-1"><a href="" aria-label="1"></a>[-0.03, 0.18, 0.04, -0.29]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We can think of this simply as:</p>
+<blockquote>
+<p><strong>“Here is the current situation of the cart and pole.”</strong></p>
+</blockquote>
+<h4 class="scrollable" id="what-are-the-actions">What are the actions?</h4>
+<p>The agent has only two choices:</p>
+<p><span class="math display">\[
+a_t \in \{0,1\}
+\]</span></p>
+<p>corresponding to pushing the cart in one direction or the other.</p>
+<p>The important question for the agent therefore becomes:</p>
+<blockquote>
+<p><strong>Given the current state, should I push left or right?</strong></p>
+</blockquote>
+<h4 class="scrollable" id="what-is-the-reward">What is the reward?</h4>
+<p>CartPole gives the agent a reward for keeping the pole balanced.</p>
+<p>Therefore, the agent gradually learns:</p>
+<blockquote>
+<p><strong>Which actions, in which situations, tend to keep the pole balanced longer?</strong></p>
+</blockquote>
+<p>This is exactly what our Q-values will eventually represent.</p>
+<h3 class="scrollable" id="why-is-it-called-markov">Why is it called “Markov”?</h3>
+<p>For now, we only need one simple intuition:</p>
+<blockquote>
+<p><strong>The agent makes its decision based on the current state.</strong></p>
+</blockquote>
+<p>The current CartPole state contains the information we need about where the cart is, how it is moving, where the pole is pointing, and how it is moving.</p>
+<p>We therefore treat the current state as sufficient for deciding what to do next.</p>
+<p>We will return to the formal meaning of the <strong>Markov property</strong> later.</p>
+<h3 class="scrollable" id="our-rl-interaction-loop">Our RL interaction loop</h3>
+<p>The CartPole program can now be viewed as:</p>
+<p><span class="math display">\[
+\boxed{
+s_t
+\rightarrow
+a_t
+\rightarrow
+r_{t+1},s_{t+1}
+\rightarrow
+a_{t+1}
+\rightarrow
+\cdots
+}
+\]</span></p>
+<p>In code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="" aria-label="1"></a>observation, info <span class="op">=</span> env.reset()</span>
+<span id="cb5-2"><a href="" aria-label="2"></a></span>
+<span id="cb5-3"><a href="" aria-label="3"></a><span class="cf">while</span> <span class="kw">not</span> done:</span>
+<span id="cb5-4"><a href="" aria-label="4"></a></span>
+<span id="cb5-5"><a href="" aria-label="5"></a>    action <span class="op">=</span> choose_action(observation)</span>
+<span id="cb5-6"><a href="" aria-label="6"></a></span>
+<span id="cb5-7"><a href="" aria-label="7"></a>    next_observation, reward, terminated, truncated, info <span class="op">=</span> <span class="op">\</span></span>
+<span id="cb5-8"><a href="" aria-label="8"></a>        env.step(action)</span>
+<span id="cb5-9"><a href="" aria-label="9"></a></span>
+<span id="cb5-10"><a href="" aria-label="10"></a>    learn_from(</span>
+<span id="cb5-11"><a href="" aria-label="11"></a>        observation,</span>
+<span id="cb5-12"><a href="" aria-label="12"></a>        action,</span>
+<span id="cb5-13"><a href="" aria-label="13"></a>        reward,</span>
+<span id="cb5-14"><a href="" aria-label="14"></a>        next_observation</span>
+<span id="cb5-15"><a href="" aria-label="15"></a>    )</span>
+<span id="cb5-16"><a href="" aria-label="16"></a></span>
+<span id="cb5-17"><a href="" aria-label="17"></a>    observation <span class="op">=</span> next_observation</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Initially, our agent chooses actions randomly:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="" aria-label="1"></a>action <span class="op">=</span> env.action_space.sample()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>It interacts with the MDP, but <strong>it does not learn anything from the experience</strong>.</p>
+<p>Our next step is to change that.</p>
+<p>We want the agent to remember whether an action taken in a particular state turned out to be useful:</p>
+<p><span class="math display">\[
+\boxed{
+\text{State}
++
+\text{Action}
++
+\text{Reward}
++
+\text{Next State}
+\quad\Longrightarrow\quad
+\text{Learning}
+}
+\]</span></p>
+<p>That takes us directly to <strong>Q-learning</strong>, the algorithm we will learn today.</p>
+<p>For this first CartPole walkthrough, we just need only this mental model:</p>
+<p><span class="math display">\[
+\boxed{
+\text{See the situation}
+\rightarrow
+\text{Take an action}
+\rightarrow
+\text{See what happened}
+\rightarrow
+\text{Learn from it}
+}
+\]</span></p>
+</section>
+<section id="markov-decision-process-the-rl-framework-1" class="slide level2 scrollable">
+<h2>Markov Decision Process – the RL framework</h2>
+<p>Many RL problems are represented as a <strong>Markov Decision Process (MDP)</strong>:</p>
+<p><span class="math display">\[
+\boxed{(S,A,P,R,\gamma)}
+\]</span></p>
+<p>where:</p>
+<p><span class="math display">\[
+S=\text{set of states}
+\]</span></p>
+<p><span class="math display">\[
+A=\text{set of actions}
+\]</span></p>
+<p><span class="math display">\[
+P(s'|s,a)=\text{probability of reaching }s'
+\]</span></p>
+<p><span class="math display">\[
+R(s,a)=\text{reward}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\gamma=\text{discount factor}.
+\]</span></p>
+<p>For CartPole, a state contains four numbers:</p>
+<p><span class="math display">\[
+s =
+[x,\dot{x},\theta,\dot{\theta}]
+\]</span></p>
+<p>representing roughly:</p>
+<ol type="1">
+<li>cart position,</li>
+<li>cart velocity,</li>
+<li>pole angle,</li>
+<li>pole angular velocity</li>
+</ol>
+<p>The action space is much simpler:</p>
+<p><span class="math display">\[
+A=\{0,1\},
+\]</span></p>
+<p>where one action pushes left and the other pushes right.</p>
+<p>In the code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="" aria-label="1"></a>observation, reward, terminated, truncated, info <span class="op">=</span> env.step(action)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Gymnasium is essentially giving us one MDP transition:</p>
+<p><span class="math display">\[
+(s_t,a_t,r_{t+1},s_{t+1}).
+\]</span></p>
+</section>
+<section id="what-does-the-agent-actually-want" class="slide level2 scrollable">
+<h2>What does the agent actually want?</h2>
+<p>The agent does not necessarily want the largest immediate reward.</p>
+<p>It wants to maximize its accumulated future reward, called the <strong>return</strong>, <span class="math inline">\(G_t\)</span>:</p>
+<p><span class="math display">\[
+G_t
+=
+r_{t+1}
++
+\gamma r_{t+2}
++
+\gamma^2 r_{t+3}
++
+\gamma^3 r_{t+4}
++\cdots
+\]</span></p>
+<p>or:</p>
+<p><span class="math display">\[
+\boxed{
+G_t=\sum_{k=0}^{\infty}\gamma^k r_{t+k+1}
+}
+\]</span></p>
+<p>The parameter</p>
+<p><span class="math display">\[
+0\leq\gamma\leq1
+\]</span></p>
+<p>is the <strong>discount factor</strong>:</p>
+<ul>
+<li>If <span class="math inline">\(\gamma=0\)</span>, the agent cares almost entirely about the immediate reward.</li>
+<li>If <span class="math inline">\(\gamma\approx1\)</span>, the agent cares strongly about long-term consequences.</li>
+</ul>
+<p>In clever CartPole code, we set:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="" aria-label="1"></a>gamma <span class="op">=</span> <span class="fl">0.99</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>that means:</p>
+<blockquote>
+<p>“Don’t just keep the pole balanced for the next instant. Prefer actions that are likely to keep it balanced for a long time.”</p>
+</blockquote>
+</section>
+<section id="what-is-qsa" class="slide level2 scrollable">
+<h2>What is <span class="math inline">\(Q(s,a)\)</span>?</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><span class="math inline">\(Q\)</span>-table</th>
+<th><span class="math inline">\(a_1\)</span></th>
+<th><span class="math inline">\(a_2\)</span></th>
+<th><span class="math inline">\(\cdot\)</span></th>
+<th><span class="math inline">\(a_n\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(s_1\)</span></td>
+<td><span class="math inline">\(Q(s_1,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_1,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_1,a_n)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s_2\)</span></td>
+<td><span class="math inline">\(Q(s_2,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_2,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_2,a_n)\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s_3\)</span></td>
+<td><span class="math inline">\(Q(s_3,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_3,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_3,a_n)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s_4\)</span></td>
+<td><span class="math inline">\(Q(s_4,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_4,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_4,a_n)\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\vdots\)</span></td>
+<td><span class="math inline">\(\vdots\)</span></td>
+<td><span class="math inline">\(\vdots\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(\vdots\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s_m\)</span></td>
+<td><span class="math inline">\(Q(s_m,a_1)\)</span></td>
+<td><span class="math inline">\(Q(s_m,a_2)\)</span></td>
+<td><span class="math inline">\(\cdots\)</span></td>
+<td><span class="math inline">\(Q(s_m,a_n)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The central question for our agent is:</p>
+<blockquote>
+<p><strong>If I am in state <span class="math inline">\(s\)</span>, how good would it be to take action <span class="math inline">\(a\)</span>?</strong></p>
+</blockquote>
+<p>We represent this using the <strong>action-value function</strong>:</p>
+<p><span class="math display">\[
+\boxed{Q(s,a)}
+\]</span></p>
+<p>Think of it as the agent’s current estimate of the <strong>long-term usefulness of taking action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span></strong> (<em>a type of <strong>Q</strong>uality score if you would like to connect <span class="math inline">\(Q\)</span> to a meaningful word</em>).</p>
+<p>Suppose hypothetically:</p>
+<p><span class="math display">\[
+Q(s,\text{Left})=14.2
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+Q(s,\text{Right})=28.7.
+\]</span></p>
+<p>If the agent trusts what it has learned so far, it should choose:</p>
+<p><span class="math display">\[
+\text{Right}.
+\]</span></p>
+<p>That is exactly what this code does:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="" aria-label="1"></a>action <span class="op">=</span> np.argmax(Q[state])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="but-initially-the-agent-knows-nothing" class="slide level2 scrollable">
+<h2>But initially the agent knows nothing</h2>
+<p>At the beginning:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="" aria-label="1"></a>Q <span class="op">=</span> np.zeros(...)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>so essentially:</p>
+<p><span class="math display">\[
+Q(s,a)=0
+\]</span></p>
+<p>for everything.</p>
+<p>The agent therefore has a problem:</p>
+<blockquote>
+<p>How can it know which action is best when it has never tried anything?</p>
+</blockquote>
+<p>It has to <strong>explore</strong>.</p>
+<p>This leads to one of the most important ideas in RL:</p>
+<p><span class="math display">\[
+\boxed{\text{Exploration vs. Exploitation}}
+\]</span></p>
+<p><strong>Exploration:</strong> try something, perhaps randomly, to learn more.</p>
+<p><strong>Exploitation:</strong> use what you already know and choose the currently best action.</p>
+</section>
+<section id="the-epsilon-greedy-policy" class="slide level2 scrollable">
+<h2>The <span class="math inline">\(\epsilon\)</span>-greedy policy</h2>
+<p>A very simple way to balance these is the <strong>epsilon-greedy policy</strong>.</p>
+<ul>
+<li>With probability <span class="math inline">\(\epsilon\)</span>, take a random action.</li>
+<li>With probability <span class="math inline">\(1-\epsilon\)</span>, take the best action we currently know.</li>
+</ul>
+<p>Our code says:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="" aria-label="1"></a><span class="cf">if</span> np.random.random() <span class="op">&lt;</span> epsilon:</span>
+<span id="cb11-2"><a href="" aria-label="2"></a>    action <span class="op">=</span> env.action_space.sample()   <span class="co"># explore</span></span>
+<span id="cb11-3"><a href="" aria-label="3"></a><span class="cf">else</span>:</span>
+<span id="cb11-4"><a href="" aria-label="4"></a>    action <span class="op">=</span> np.argmax(Q[state])         <span class="co"># exploit</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>So early in training we might use:</p>
+<p><span class="math display">\[
+\epsilon=1.0.
+\]</span></p>
+<p>The agent behaves almost completely randomly.</p>
+<p>Later, we gradually / smoothly decrease <span class="math inline">\(\epsilon\)</span> to a minimum <span class="math inline">\(\epsilon=0.05\)</span>. At that time, approximately 5% exploration and 95% exploitation.</p>
+<p>The goal of decreasing <span class="math inline">\(\epsilon\)</span> is to:</p>
+<blockquote>
+<p><strong>Explore a lot at the beginning, then gradually explore less as you gain experience.</strong></p>
+</blockquote>
+<p>For our code,</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="" aria-label="1"></a>epsilon <span class="op">=</span> (</span>
+<span id="cb12-2"><a href="" aria-label="2"></a>    epsilon_end</span>
+<span id="cb12-3"><a href="" aria-label="3"></a>    <span class="op">+</span> (epsilon_start <span class="op">-</span> epsilon_end)</span>
+<span id="cb12-4"><a href="" aria-label="4"></a>    <span class="op">*</span> np.exp(<span class="op">-</span>episode <span class="op">/</span> epsilon_decay)</span>
+<span id="cb12-5"><a href="" aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>the mathematical form is</p>
+<p><span class="math display">\[
+\boxed{
+\epsilon_k =
+\epsilon_{\min}
++
+(\epsilon_{\max}-\epsilon_{\min})
+e^{-k/\tau}
+}
+\]</span></p>
+<p>where <span class="math inline">\(k\)</span> is the current episode number and <span class="math inline">\(\tau\)</span> is <code>epsilon_decay</code>.</p>
+<p>With our values set to:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="" aria-label="1"></a>epsilon_start <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb13-2"><a href="" aria-label="2"></a>epsilon_end   <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb13-3"><a href="" aria-label="3"></a>epsilon_decay <span class="op">=</span> <span class="dv">1000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>we get</p>
+<p><span class="math display">\[
+\boxed{
+\epsilon =
+0.05 + 0.95e^{-\text{episode}/1000}
+}
+\]</span></p>
+<p><a href="figs/eps-decay.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="figs/eps-decay.png"></a></p>
+<p>Start with</p>
+<p><span class="math display">\[
+\epsilon_{\text{start}}=1.0.
+\]</span></p>
+<p>At the beginning, the agent knows nothing. So we want substantial exploration.</p>
+<p>The quantity</p>
+<p><span class="math display">\[
+\epsilon_{\text{start}}-\epsilon_{\text{end}}
+=
+1.0-0.05
+=
+0.95
+\]</span></p>
+<p>is the amount of epsilon that we allow to <strong>decay away</strong>.</p>
+<p>The exponential term</p>
+<p><span class="math display">\[
+e^{-\text{episode}/1000}
+\]</span></p>
+<p>starts at <span class="math inline">\(1\)</span> and gradually approaches <span class="math inline">\(0\)</span>.</p>
+<p>So:</p>
+<p><span class="math display">\[
+0.95e^{-\text{episode}/1000}
+\]</span></p>
+<p>gradually disappears, leaving only</p>
+<p><span class="math display">\[
+\epsilon_{\text{end}}=0.05.
+\]</span></p>
+<h3 id="episode-0-almost-entirely-exploration">Episode 0: almost entirely exploration</h3>
+<p>At episode 0,</p>
+<p><span class="math display">\[
+e^{-0/1000}=1.
+\]</span></p>
+<p>Therefore,</p>
+<p><span class="math display">\[
+\epsilon
+=
+0.05+0.95(1)
+=
+1.0.
+\]</span></p>
+<p>So:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="" aria-label="1"></a><span class="cf">if</span> np.random.random() <span class="op">&lt;</span> epsilon:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>is essentially always true.</p>
+<p>The agent behaves randomly:</p>
+<p><span class="math display">\[
+\boxed{\epsilon=1.0 \Rightarrow 100\%\text{ exploration}}
+\]</span></p>
+<p>This makes sense—the agent hasn’t learned anything yet.</p>
+<h3 id="episode-1000">Episode 1000</h3>
+<p>Now:</p>
+<p><span class="math display">\[
+\epsilon
+=
+0.05+0.95e^{-1}.
+\]</span></p>
+<p>Since</p>
+<p><span class="math display">\[
+e^{-1}\approx0.368,
+\]</span></p>
+<p>we get</p>
+<p><span class="math display">\[
+\epsilon
+\approx
+0.05+0.95(0.368)
+\approx0.40.
+\]</span></p>
+<p>So around episode 1000:</p>
+<p><span class="math display">\[
+\boxed{\epsilon\approx0.40}
+\]</span></p>
+<p>meaning roughly:</p>
+<ul>
+<li>40% chance: <strong>explore</strong></li>
+<li>60% chance: <strong>exploit what has been learned</strong></li>
+</ul>
+<h3 id="episode-2000">Episode 2000</h3>
+<p><span class="math display">\[
+\epsilon
+=
+0.05+0.95e^{-2}
+\approx0.179.
+\]</span></p>
+<p>So the agent now explores only about <strong>18%</strong> of the time.</p>
+<h3 id="episode-5000">Episode 5000</h3>
+<p><span class="math display">\[
+\epsilon
+=
+0.05+0.95e^{-5}
+\approx0.056.
+\]</span></p>
+<p>The agent is now very close to the desired minimum:</p>
+<p><span class="math display">\[
+\boxed{\epsilon_{\text{end}}=0.05}
+\]</span></p>
+<p>so it uses its learned policy about 95% of the time but still occasionally tries something different.</p>
+<p><strong>In Summary:</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 31%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Episode</th>
+<th style="text-align: right;">Approx. <span class="math inline">\(\epsilon\)</span></th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td>Almost completely exploring</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">500</td>
+<td style="text-align: right;">0.63</td>
+<td>More exploration than exploitation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">0.40</td>
+<td>Increasingly trusts learned Q-values</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">0.18</td>
+<td>Mostly exploiting</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3000</td>
+<td style="text-align: right;">0.10</td>
+<td>Strongly exploiting</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">0.056</td>
+<td>Almost at minimum exploration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-does-epsilon_decay-1000-actually-mean">What does <code>epsilon_decay = 1000</code> actually mean?</h3>
+<p>This is an important subtlety.</p>
+<p>It <strong>does not mean epsilon reaches 0.05 after 1000 episodes</strong>.</p>
+<p>Instead, <code>1000</code> controls <strong>how quickly</strong> it moves toward 0.05.</p>
+<p>After one decay period—1000 episodes—the decaying portion has fallen to about</p>
+<p><span class="math display">\[
+e^{-1}=36.8\%
+\]</span></p>
+<p>of its original value.</p>
+<p>So:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="" aria-label="1"></a>epsilon_decay <span class="op">=</span> <span class="dv">500</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>would make exploration disappear <strong>more quickly</strong>, while</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="" aria-label="1"></a>epsilon_decay <span class="op">=</span> <span class="dv">3000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>would keep the agent exploring <strong>for longer</strong>.</p>
+<h3 id="why-not-simply-set-epsilon-to-zero-eventually">Why not simply set epsilon to zero eventually?</h3>
+<p>Because even a fairly well-trained agent may not have discovered everything.</p>
+<p>Keeping</p>
+<p><span class="math display">\[
+\epsilon_{\text{end}}=0.05
+\]</span></p>
+<p>means:</p>
+<blockquote>
+<p><strong>95% of the time, do what you currently believe is best—but 5% of the time, remain curious.</strong></p>
+</blockquote>
+<p>This reinforces one of the central challenges in reinforcement learning:</p>
+<p><span class="math display">\[
+\boxed{\text{Exploration} \quad\text{vs.}\quad \text{Exploitation}}
+\]</span></p>
+<p>Early in training:</p>
+<p><span class="math display">\[
+\text{Explore} \gg \text{Exploit}
+\]</span></p>
+<p>Later:</p>
+<p><span class="math display">\[
+\text{Exploit} \gg \text{Explore}.
+\]</span></p>
+<p>And the exponential epsilon-decay equation gives us a simple, smooth transition between those two behaviors.</p>
+</section>
+<section id="where-does-the-actual-learning-happen" class="slide level2 scrollable">
+<h2>Where does the actual learning happen?</h2>
+<p>This is the heart of Q-learning.</p>
+<p>After taking action <span class="math inline">\(a\)</span>, suppose we observe:</p>
+<p><span class="math display">\[
+s,a,r,s'.
+\]</span></p>
+<p>We update our estimate using:</p>
+<p><span class="math display">\[
+\boxed{
+Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+\left[
+r+\gamma\max_{a'}Q(s',a')
+-
+Q(s,a)
+\right]
+}
+\]</span></p>
+<p>It looks intimidating at first, but its meaning is surprisingly intuitive.</p>
+<p>Our <strong>old belief</strong> is:</p>
+<p><span class="math display">\[
+Q(s,a).
+\]</span></p>
+<p>Our new evidence suggests that the action was worth approximately:</p>
+<p><span class="math display">\[
+r+\gamma\max_{a'}Q(s',a').
+\]</span></p>
+<p>So we calculate:</p>
+<p><span class="math display">\[
+\underbrace{
+r+\gamma\max_{a'}Q(s',a')
+}_{\text{new target}}
+-
+\underbrace{Q(s,a)}_{\text{old estimate}}.
+\]</span></p>
+<p>That difference is the <strong>TD error</strong>.</p>
+<p>The agent is essentially saying:</p>
+<blockquote>
+<p>“What happened was better or worse than I expected. Let me adjust my belief.”</p>
+</blockquote>
+</section>
+<section id="what-does-alpha-do" class="slide level2 scrollable">
+<h2>What does <span class="math inline">\(\alpha\)</span> do?</h2>
+<p>The parameter</p>
+<p><span class="math display">\[
+\alpha
+\]</span></p>
+<p>is the <strong>learning rate</strong>.</p>
+<p>In our code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="" aria-label="1"></a>alpha <span class="op">=</span> <span class="fl">0.1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The update can be viewed as:</p>
+<p><span class="math display">\[
+\text{new estimate}
+=
+\text{old estimate}
++
+\alpha(\text{new information}).
+\]</span></p>
+<p>If <span class="math inline">\(\alpha\)</span> is very small, the agent learns slowly.</p>
+<p>If <span class="math inline">\(\alpha\)</span> is very large, it changes its beliefs aggressively.</p>
+<p>So the three important parameters students should notice are:</p>
+<p><span class="math display">\[
+\boxed{
+\alpha=\text{How quickly do I learn?}
+}
+\]</span></p>
+<p><span class="math display">\[
+\boxed{
+\gamma=\text{How much do I care about the future?}
+}
+\]</span></p>
+<p><span class="math display">\[
+\boxed{
+\epsilon=\text{How much should I explore?}
+}
+\]</span></p>
+</section>
+<section id="a-tiny-numerical-example" class="slide level2 scrollable">
+<h2>A tiny numerical example</h2>
+<p>Suppose the agent currently believes:</p>
+<p><span class="math display">\[
+Q(s,a)=4.
+\]</span></p>
+<p>It takes the action and receives:</p>
+<p><span class="math display">\[
+r=1.
+\]</span></p>
+<p>In the next state:</p>
+<p><span class="math display">\[
+\max_{a'}Q(s',a')=6.
+\]</span></p>
+<p>Let:</p>
+<p><span class="math display">\[
+\gamma=0.9,\qquad\alpha=0.1.
+\]</span></p>
+<p>The target is:</p>
+<p><span class="math display">\[
+1+0.9(6)=6.4.
+\]</span></p>
+<p>The error is:</p>
+<p><span class="math display">\[
+6.4-4=2.4.
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+Q(s,a)
+\leftarrow
+4+0.1(2.4)
+\]</span></p>
+<p><span class="math display">\[
+=4.24.
+\]</span></p>
+<p>The agent has slightly increased its confidence that this was a good action.</p>
+<p>It does this <strong>again and again and again</strong> over thousands of interactions.</p>
+<p>That is learning.</p>
+</section>
+<section id="why-did-we-discretize-cartpole" class="slide level2 scrollable">
+<h2>Why did we discretize CartPole?</h2>
+<p>There is another important issue hiding in our code.</p>
+<p>CartPole gives observations such as:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb18-1"><a href="" aria-label="1"></a>[-0.032, 0.187, 0.041, -0.296]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>and then perhaps:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb19-1"><a href="" aria-label="1"></a>[-0.029, 0.381, 0.035, -0.575]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>There are essentially an enormous number of possible continuous states.</p>
+<p>But our Q-table wants something like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="" aria-label="1"></a>Q[state, action]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>So we group nearby continuous values into <strong>bins</strong>.</p>
+<p>For example:</p>
+<p><span class="math display">\[
+\theta=0.031
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\theta=0.033
+\]</span></p>
+<p>might be treated as the same discrete state.</p>
+<p>This is a crude approximation—but pedagogically it gives us something very valuable:</p>
+<p><span class="math display">\[
+\boxed{
+\text{continuous CartPole}
+\rightarrow
+\text{discrete states}
+\rightarrow
+\text{Q-table}
+}
+\]</span></p>
+<p>Later in the course we will ask:</p>
+<blockquote>
+<p>What if we don’t want to discretize?</p>
+</blockquote>
+<p>And that question leads naturally to <strong>function approximation and Deep Q-Networks (DQN)</strong>.</p>
+<p>Instead of:</p>
+<p><span class="math display">\[
+Q\text{-table},
+\]</span></p>
+<p>we will eventually learn:</p>
+<p><span class="math display">\[
+\boxed{
+Q(s,a;\theta)
+}
+\]</span></p>
+<p>using a neural network.</p>
+<p>That is one of the bridges from classical RL to <strong>Deep Reinforcement Learning</strong>.</p>
+</section>
+<section id="episode-termination-and-reset" class="slide level2 scrollable">
+<h2>Episode, termination, and reset</h2>
+<p>An <strong>episode</strong> represents one attempt by our agent.</p>
+<p>For CartPole:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="" aria-label="1"></a>observation, info <span class="op">=</span> env.reset()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>starts a new episode.</p>
+<p>The agent then repeatedly takes actions until:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="" aria-label="1"></a>terminated <span class="kw">or</span> truncated</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>becomes <code>True</code>.</p>
+<p>Conceptually:</p>
+<p><span class="math display">\[
+s_0
+\rightarrow a_0
+\rightarrow r_1
+\rightarrow s_1
+\rightarrow a_1
+\rightarrow r_2
+\rightarrow\cdots
+\rightarrow\text{END}.
+\]</span></p>
+<p>We then start another attempt.</p>
+<p>The agent may fail quickly during early episodes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a href="" aria-label="1"></a>Episode 1       → 18 steps</span>
+<span id="cb23-2"><a href="" aria-label="2"></a>Episode 2       → 24 steps</span>
+<span id="cb23-3"><a href="" aria-label="3"></a>Episode 3       → 15 steps</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>but after learning:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb24-1"><a href="" aria-label="1"></a>Episode 1000    → 183 steps</span>
+<span id="cb24-2"><a href="" aria-label="2"></a>Episode 2000    → 347 steps</span>
+<span id="cb24-3"><a href="" aria-label="3"></a>Episode 4000    → 500 steps</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That growing episode reward is evidence that the policy is improving.</p>
+</section>
+<section id="now-look-again-at-the-cartpole-code" class="slide level2 scrollable">
+<h2>Now look again at the CartPole code</h2>
+<p>The entire program can now be mentally reduced to this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb25-1"><a href="" aria-label="1"></a>Initialize Q</span>
+<span id="cb25-2"><a href="" aria-label="2"></a></span>
+<span id="cb25-3"><a href="" aria-label="3"></a>Repeat for many episodes:</span>
+<span id="cb25-4"><a href="" aria-label="4"></a></span>
+<span id="cb25-5"><a href="" aria-label="5"></a>    Observe state</span>
+<span id="cb25-6"><a href="" aria-label="6"></a></span>
+<span id="cb25-7"><a href="" aria-label="7"></a>    Repeat:</span>
+<span id="cb25-8"><a href="" aria-label="8"></a></span>
+<span id="cb25-9"><a href="" aria-label="9"></a>        Choose action</span>
+<span id="cb25-10"><a href="" aria-label="10"></a>           ↓</span>
+<span id="cb25-11"><a href="" aria-label="11"></a>        explore OR exploit</span>
+<span id="cb25-12"><a href="" aria-label="12"></a></span>
+<span id="cb25-13"><a href="" aria-label="13"></a>        Take action</span>
+<span id="cb25-14"><a href="" aria-label="14"></a>           ↓</span>
+<span id="cb25-15"><a href="" aria-label="15"></a>        observe reward + next state</span>
+<span id="cb25-16"><a href="" aria-label="16"></a></span>
+<span id="cb25-17"><a href="" aria-label="17"></a>        Learn</span>
+<span id="cb25-18"><a href="" aria-label="18"></a>           ↓</span>
+<span id="cb25-19"><a href="" aria-label="19"></a>        update Q(s,a)</span>
+<span id="cb25-20"><a href="" aria-label="20"></a></span>
+<span id="cb25-21"><a href="" aria-label="21"></a>        Move to next state</span>
+<span id="cb25-22"><a href="" aria-label="22"></a></span>
+<span id="cb25-23"><a href="" aria-label="23"></a>    until episode ends</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Or mathematically:</p>
+<p><span class="math display">\[
+\boxed{
+s_t
+\overset{\epsilon\text{-greedy}}{\longrightarrow}
+a_t
+\overset{\text{environment}}{\longrightarrow}
+(r_{t+1},s_{t+1})
+\overset{\text{Q-update}}{\longrightarrow}
+\text{better }Q
+}
+\]</span></p>
+<p>That is the key idea.</p>
+</section>
+<section id="the-imports-and-utility-functions" class="slide level2 scrollable">
+<h2>The imports and utility functions</h2>
+<div id="2d1bbf89" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="" aria-label="1"></a><span class="co"># The imports</span></span>
+<span id="cb26-2"><a href="" aria-label="2"></a><span class="im">import</span> gymnasium <span class="im">as</span> gym</span>
+<span id="cb26-3"><a href="" aria-label="3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb26-4"><a href="" aria-label="4"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb26-5"><a href="" aria-label="5"></a></span>
+<span id="cb26-6"><a href="" aria-label="6"></a><span class="co">#The following is for storing the agent's model into json file</span></span>
+<span id="cb26-7"><a href="" aria-label="7"></a><span class="im">import</span> json</span>
+<span id="cb26-8"><a href="" aria-label="8"></a><span class="im">from</span> json <span class="im">import</span> JSONEncoder</span>
+<span id="cb26-9"><a href="" aria-label="9"></a><span class="kw">class</span> NumpyArrayEncoder(JSONEncoder):</span>
+<span id="cb26-10"><a href="" aria-label="10"></a>    <span class="kw">def</span> default(<span class="va">self</span>, obj):</span>
+<span id="cb26-11"><a href="" aria-label="11"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(obj, np.ndarray):</span>
+<span id="cb26-12"><a href="" aria-label="12"></a>            <span class="cf">return</span> obj.tolist()</span>
+<span id="cb26-13"><a href="" aria-label="13"></a>        <span class="cf">return</span> JSONEncoder.default(<span class="va">self</span>, obj)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="create-the-environment" class="slide level2 scrollable">
+<h2>Create the environment</h2>
+<div id="0878271a" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="" aria-label="1"></a><span class="co"># No rendering during training is much faster</span></span>
+<span id="cb27-2"><a href="" aria-label="2"></a>env <span class="op">=</span> gym.make(<span class="st">"CartPole-v1"</span>)</span>
+<span id="cb27-3"><a href="" aria-label="3"></a></span>
+<span id="cb27-4"><a href="" aria-label="4"></a>env.action_space.seed(<span class="dv">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<pre><code>42</code></pre>
+</div>
+</div>
+</section>
+<section id="discretize-the-continuous-cartpole-observation-space" class="slide level2 scrollable">
+<h2>Discretize the continuous CartPole observation space</h2>
+<div id="6a545b4a" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="" aria-label="1"></a><span class="co"># Observation:</span></span>
+<span id="cb29-2"><a href="" aria-label="2"></a><span class="co"># [cart position,</span></span>
+<span id="cb29-3"><a href="" aria-label="3"></a><span class="co">#  cart velocity,</span></span>
+<span id="cb29-4"><a href="" aria-label="4"></a><span class="co">#  pole angle,</span></span>
+<span id="cb29-5"><a href="" aria-label="5"></a><span class="co">#  pole angular velocity]</span></span>
+<span id="cb29-6"><a href="" aria-label="6"></a></span>
+<span id="cb29-7"><a href="" aria-label="7"></a>num_bins <span class="op">=</span> (<span class="dv">6</span>,  <span class="co">#cart position</span></span>
+<span id="cb29-8"><a href="" aria-label="8"></a>            <span class="dv">6</span>,  <span class="co">#cart velocity</span></span>
+<span id="cb29-9"><a href="" aria-label="9"></a>            <span class="dv">12</span>, <span class="co">#pole angle</span></span>
+<span id="cb29-10"><a href="" aria-label="10"></a>            <span class="dv">12</span>) <span class="co">#pole angular velocity]</span></span>
+<span id="cb29-11"><a href="" aria-label="11"></a></span>
+<span id="cb29-12"><a href="" aria-label="12"></a><span class="co"># Practical ranges used for discretization.</span></span>
+<span id="cb29-13"><a href="" aria-label="13"></a><span class="co"># Velocity dimensions are theoretically unbounded,</span></span>
+<span id="cb29-14"><a href="" aria-label="14"></a><span class="co"># so we choose reasonable clipping ranges.</span></span>
+<span id="cb29-15"><a href="" aria-label="15"></a>lower_bounds <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.4</span>, <span class="op">-</span><span class="fl">3.0</span>, <span class="op">-</span><span class="fl">0.21</span>, <span class="op">-</span><span class="fl">3.5</span>])</span>
+<span id="cb29-16"><a href="" aria-label="16"></a>upper_bounds <span class="op">=</span> np.array([ <span class="fl">2.4</span>,  <span class="fl">3.0</span>,  <span class="fl">0.21</span>,  <span class="fl">3.5</span>])</span>
+<span id="cb29-17"><a href="" aria-label="17"></a></span>
+<span id="cb29-18"><a href="" aria-label="18"></a>bins <span class="op">=</span> [</span>
+<span id="cb29-19"><a href="" aria-label="19"></a>    np.linspace(lower_bounds[i],</span>
+<span id="cb29-20"><a href="" aria-label="20"></a>                upper_bounds[i],</span>
+<span id="cb29-21"><a href="" aria-label="21"></a>                num_bins[i] <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb29-22"><a href="" aria-label="22"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)</span>
+<span id="cb29-23"><a href="" aria-label="23"></a>]</span>
+<span id="cb29-24"><a href="" aria-label="24"></a></span>
+<span id="cb29-25"><a href="" aria-label="25"></a></span>
+<span id="cb29-26"><a href="" aria-label="26"></a><span class="kw">def</span> discretize(observation):</span>
+<span id="cb29-27"><a href="" aria-label="27"></a>    <span class="co">"""</span></span>
+<span id="cb29-28"><a href="" aria-label="28"></a><span class="co">    Convert the continuous observation into a discrete state.</span></span>
+<span id="cb29-29"><a href="" aria-label="29"></a><span class="co">    """</span></span>
+<span id="cb29-30"><a href="" aria-label="30"></a></span>
+<span id="cb29-31"><a href="" aria-label="31"></a>    state <span class="op">=</span> <span class="bu">tuple</span>(</span>
+<span id="cb29-32"><a href="" aria-label="32"></a>        <span class="co">#np.digitize returns index of the bin to which each observation value belongs</span></span>
+<span id="cb29-33"><a href="" aria-label="33"></a>        np.digitize(observation[i], bins[i]) </span>
+<span id="cb29-34"><a href="" aria-label="34"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)</span>
+<span id="cb29-35"><a href="" aria-label="35"></a>    )</span>
+<span id="cb29-36"><a href="" aria-label="36"></a></span>
+<span id="cb29-37"><a href="" aria-label="37"></a>    <span class="cf">return</span> state</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="initialize-the-q-table" class="slide level2 scrollable">
+<h2>Initialize the Q-table</h2>
+<ul>
+<li>Shape of the Q-table:
+<ul>
+<li><span class="math inline">\((\text{state dimensions} \times  \text{number of actions})\)</span></li>
+<li><span class="math inline">\((\boxed{6 \times 6 \times 12 \times 12} \times 2)\)</span></li>
+</ul></li>
+</ul>
+<div id="1ef342f7" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="" aria-label="1"></a><span class="co"># Initialize the Q-table</span></span>
+<span id="cb30-2"><a href="" aria-label="2"></a><span class="co"># Shape:</span></span>
+<span id="cb30-3"><a href="" aria-label="3"></a><span class="co"># state dimensions + number of actions</span></span>
+<span id="cb30-4"><a href="" aria-label="4"></a><span class="co">#</span></span>
+<span id="cb30-5"><a href="" aria-label="5"></a><span class="co"># 6 x 6 x 12 x 12 x 2</span></span>
+<span id="cb30-6"><a href="" aria-label="6"></a></span>
+<span id="cb30-7"><a href="" aria-label="7"></a>Q <span class="op">=</span> np.zeros(num_bins <span class="op">+</span> (env.action_space.n,))</span>
+<span id="cb30-8"><a href="" aria-label="8"></a></span>
+<span id="cb30-9"><a href="" aria-label="9"></a><span class="bu">print</span>(<span class="ss">f'Q.shape = </span><span class="sc">{</span>Q<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb30-10"><a href="" aria-label="10"></a></span>
+<span id="cb30-11"><a href="" aria-label="11"></a>indices  <span class="op">=</span> np.argwhere(Q <span class="op">!=</span> <span class="dv">0</span>)</span>
+<span id="cb30-12"><a href="" aria-label="12"></a><span class="bu">print</span>(<span class="ss">f'num of non-zero indices = </span><span class="sc">{</span><span class="bu">len</span>(indices)<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb30-13"><a href="" aria-label="13"></a><span class="cf">if</span> <span class="bu">len</span>(indices)<span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb30-14"><a href="" aria-label="14"></a>    <span class="bu">print</span>(<span class="st">'first one: '</span>,indices[<span class="dv">0</span>])</span>
+<span id="cb30-15"><a href="" aria-label="15"></a></span>
+<span id="cb30-16"><a href="" aria-label="16"></a></span>
+<span id="cb30-17"><a href="" aria-label="17"></a>    the_state <span class="op">=</span> <span class="bu">tuple</span>(indices[<span class="dv">0</span>,:<span class="op">-</span><span class="dv">1</span>].tolist()) <span class="co">#based on the discretization/binning</span></span>
+<span id="cb30-18"><a href="" aria-label="18"></a>    <span class="bu">print</span>(<span class="ss">f'the_state = '</span>,the_state)</span>
+<span id="cb30-19"><a href="" aria-label="19"></a></span>
+<span id="cb30-20"><a href="" aria-label="20"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Please note: '</span>)</span>
+<span id="cb30-21"><a href="" aria-label="21"></a>    <span class="bu">print</span>(<span class="ss">f'the_state + (0,) = '</span>,the_state <span class="op">+</span> (<span class="dv">0</span>,))</span>
+<span id="cb30-22"><a href="" aria-label="22"></a>    <span class="bu">print</span>(<span class="ss">f'the_state + (1,) = '</span>,the_state <span class="op">+</span> (<span class="dv">1</span>,))</span>
+<span id="cb30-23"><a href="" aria-label="23"></a></span>
+<span id="cb30-24"><a href="" aria-label="24"></a>    <span class="co"># Q(s, action=0) = ?</span></span>
+<span id="cb30-25"><a href="" aria-label="25"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Q[the_state+(0,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">0</span>,)])</span>
+<span id="cb30-26"><a href="" aria-label="26"></a></span>
+<span id="cb30-27"><a href="" aria-label="27"></a>    <span class="co"># Q(s, action=1) = ?</span></span>
+<span id="cb30-28"><a href="" aria-label="28"></a>    <span class="bu">print</span>(<span class="ss">f'Q[the_state+(1,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">1</span>,)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Q.shape = (6, 6, 12, 12, 2)
+num of non-zero indices = 0</code></pre>
+</div>
+</div>
+</section>
+<section id="q-learning-hyperparameters" class="slide level2 scrollable">
+<h2>Q-learning hyperparameters</h2>
+<div id="8e634932" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="" aria-label="1"></a>num_episodes <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb32-2"><a href="" aria-label="2"></a></span>
+<span id="cb32-3"><a href="" aria-label="3"></a>alpha <span class="op">=</span> <span class="fl">0.1</span>       <span class="co"># learning rate</span></span>
+<span id="cb32-4"><a href="" aria-label="4"></a>gamma <span class="op">=</span> <span class="fl">0.99</span>      <span class="co"># discount factor</span></span>
+<span id="cb32-5"><a href="" aria-label="5"></a></span>
+<span id="cb32-6"><a href="" aria-label="6"></a>epsilon_start <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb32-7"><a href="" aria-label="7"></a>epsilon_end <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb32-8"><a href="" aria-label="8"></a>epsilon_decay <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb32-9"><a href="" aria-label="9"></a></span>
+<span id="cb32-10"><a href="" aria-label="10"></a></span>
+<span id="cb32-11"><a href="" aria-label="11"></a>episode_rewards <span class="op">=</span> []</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="training-in-the-agent-environment-loop" class="slide level2 scrollable">
+<h2>Training in the agent-environment loop</h2>
+<p><a href="figs/AE_loop.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="figs/AE_loop.png"></a></p>
+</section>
+<section id="training-in-the-agent-environment-loop-1" class="slide level2 scrollable">
+<h2>Training in the agent-environment loop</h2>
+<div id="391c07c4" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="" aria-label="1"></a><span class="cf">for</span> episode <span class="kw">in</span> tqdm(<span class="bu">range</span>(num_episodes)):</span>
+<span id="cb33-2"><a href="" aria-label="2"></a></span>
+<span id="cb33-3"><a href="" aria-label="3"></a>    observation, info <span class="op">=</span> env.reset()</span>
+<span id="cb33-4"><a href="" aria-label="4"></a></span>
+<span id="cb33-5"><a href="" aria-label="5"></a>    state <span class="op">=</span> discretize(observation)</span>
+<span id="cb33-6"><a href="" aria-label="6"></a></span>
+<span id="cb33-7"><a href="" aria-label="7"></a>    terminated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb33-8"><a href="" aria-label="8"></a>    truncated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb33-9"><a href="" aria-label="9"></a></span>
+<span id="cb33-10"><a href="" aria-label="10"></a>    total_reward <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb33-11"><a href="" aria-label="11"></a></span>
+<span id="cb33-12"><a href="" aria-label="12"></a></span>
+<span id="cb33-13"><a href="" aria-label="13"></a>    <span class="co"># Gradually reduce exploration</span></span>
+<span id="cb33-14"><a href="" aria-label="14"></a>    epsilon <span class="op">=</span> (</span>
+<span id="cb33-15"><a href="" aria-label="15"></a>        epsilon_end</span>
+<span id="cb33-16"><a href="" aria-label="16"></a>        <span class="op">+</span> (epsilon_start <span class="op">-</span> epsilon_end)</span>
+<span id="cb33-17"><a href="" aria-label="17"></a>        <span class="op">*</span> np.exp(<span class="op">-</span>episode <span class="op">/</span> epsilon_decay)</span>
+<span id="cb33-18"><a href="" aria-label="18"></a>    )</span>
+<span id="cb33-19"><a href="" aria-label="19"></a></span>
+<span id="cb33-20"><a href="" aria-label="20"></a></span>
+<span id="cb33-21"><a href="" aria-label="21"></a>    <span class="cf">while</span> <span class="kw">not</span> (terminated <span class="kw">or</span> truncated):</span>
+<span id="cb33-22"><a href="" aria-label="22"></a></span>
+<span id="cb33-23"><a href="" aria-label="23"></a>        <span class="co"># We will adopt the epsilon-greedy policy</span></span>
+<span id="cb33-24"><a href="" aria-label="24"></a>        <span class="cf">if</span> np.random.random() <span class="op">&lt;</span> epsilon:</span>
+<span id="cb33-25"><a href="" aria-label="25"></a></span>
+<span id="cb33-26"><a href="" aria-label="26"></a>            <span class="co"># EXPLORE</span></span>
+<span id="cb33-27"><a href="" aria-label="27"></a>            action <span class="op">=</span> env.action_space.sample()</span>
+<span id="cb33-28"><a href="" aria-label="28"></a></span>
+<span id="cb33-29"><a href="" aria-label="29"></a>        <span class="cf">else</span>:</span>
+<span id="cb33-30"><a href="" aria-label="30"></a></span>
+<span id="cb33-31"><a href="" aria-label="31"></a>            <span class="co"># EXPLOIT what has been learned</span></span>
+<span id="cb33-32"><a href="" aria-label="32"></a>            action <span class="op">=</span> np.argmax(Q[state])</span>
+<span id="cb33-33"><a href="" aria-label="33"></a></span>
+<span id="cb33-34"><a href="" aria-label="34"></a></span>
+<span id="cb33-35"><a href="" aria-label="35"></a>        <span class="co"># now, interact with environment with the selected action</span></span>
+<span id="cb33-36"><a href="" aria-label="36"></a>        next_observation, reward, terminated, truncated, info <span class="op">=</span> <span class="op">\</span></span>
+<span id="cb33-37"><a href="" aria-label="37"></a>            env.step(action)</span>
+<span id="cb33-38"><a href="" aria-label="38"></a></span>
+<span id="cb33-39"><a href="" aria-label="39"></a>        next_state <span class="op">=</span> discretize(next_observation)</span>
+<span id="cb33-40"><a href="" aria-label="40"></a></span>
+<span id="cb33-41"><a href="" aria-label="41"></a></span>
+<span id="cb33-42"><a href="" aria-label="42"></a>        <span class="co"># -------------------------------------------------</span></span>
+<span id="cb33-43"><a href="" aria-label="43"></a>        <span class="co"># Q-learning update:</span></span>
+<span id="cb33-44"><a href="" aria-label="44"></a>        <span class="co"># Q(s,a) &lt;- Q(s,a) + alpha *( target - Q(s,a) )</span></span>
+<span id="cb33-45"><a href="" aria-label="45"></a>        <span class="co"># where,</span></span>
+<span id="cb33-46"><a href="" aria-label="46"></a>        <span class="co">#     target = r + gamma * max Q(s',a')</span></span>
+<span id="cb33-47"><a href="" aria-label="47"></a>        <span class="co"># -------------------------------------------------</span></span>
+<span id="cb33-48"><a href="" aria-label="48"></a></span>
+<span id="cb33-49"><a href="" aria-label="49"></a>        <span class="cf">if</span> terminated:</span>
+<span id="cb33-50"><a href="" aria-label="50"></a>            target <span class="op">=</span> reward</span>
+<span id="cb33-51"><a href="" aria-label="51"></a>        <span class="cf">else</span>:</span>
+<span id="cb33-52"><a href="" aria-label="52"></a>            target <span class="op">=</span> reward <span class="op">+</span> gamma <span class="op">*</span> np.<span class="bu">max</span>(Q[next_state])</span>
+<span id="cb33-53"><a href="" aria-label="53"></a></span>
+<span id="cb33-54"><a href="" aria-label="54"></a></span>
+<span id="cb33-55"><a href="" aria-label="55"></a>        Q[state <span class="op">+</span> (action,)] <span class="op">+=</span> alpha <span class="op">*</span> (target <span class="op">-</span> Q[state <span class="op">+</span> (action,)])</span>
+<span id="cb33-56"><a href="" aria-label="56"></a></span>
+<span id="cb33-57"><a href="" aria-label="57"></a></span>
+<span id="cb33-58"><a href="" aria-label="58"></a>        state <span class="op">=</span> next_state</span>
+<span id="cb33-59"><a href="" aria-label="59"></a></span>
+<span id="cb33-60"><a href="" aria-label="60"></a>        total_reward <span class="op">+=</span> reward</span>
+<span id="cb33-61"><a href="" aria-label="61"></a></span>
+<span id="cb33-62"><a href="" aria-label="62"></a></span>
+<span id="cb33-63"><a href="" aria-label="63"></a>    episode_rewards.append(total_reward)</span>
+<span id="cb33-64"><a href="" aria-label="64"></a></span>
+<span id="cb33-65"><a href="" aria-label="65"></a></span>
+<span id="cb33-66"><a href="" aria-label="66"></a>env.close()</span>
+<span id="cb33-67"><a href="" aria-label="67"></a><span class="bu">print</span>(<span class="ss">f'Training complete!'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="all-pieces-put-together-including-saving-the-model-for-later-use" class="slide level2 scrollable">
+<h2>All pieces put together including saving the model for later use</h2>
+<div id="46dc4583" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="" aria-label="1"></a><span class="co"># Save this codeblock as: clever-cartpole-v1-agent-training.py</span></span>
+<span id="cb34-2"><a href="" aria-label="2"></a><span class="co"># Run it with Python Interpreter&gt; python clever-cartpole-v1-agent-training.py</span></span>
+<span id="cb34-3"><a href="" aria-label="3"></a></span>
+<span id="cb34-4"><a href="" aria-label="4"></a><span class="co"># The imports</span></span>
+<span id="cb34-5"><a href="" aria-label="5"></a><span class="im">import</span> gymnasium <span class="im">as</span> gym</span>
+<span id="cb34-6"><a href="" aria-label="6"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb34-7"><a href="" aria-label="7"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb34-8"><a href="" aria-label="8"></a><span class="im">import</span> json</span>
+<span id="cb34-9"><a href="" aria-label="9"></a></span>
+<span id="cb34-10"><a href="" aria-label="10"></a><span class="im">from</span> json <span class="im">import</span> JSONEncoder</span>
+<span id="cb34-11"><a href="" aria-label="11"></a><span class="kw">class</span> NumpyArrayEncoder(JSONEncoder):</span>
+<span id="cb34-12"><a href="" aria-label="12"></a>    <span class="kw">def</span> default(<span class="va">self</span>, obj):</span>
+<span id="cb34-13"><a href="" aria-label="13"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(obj, np.ndarray):</span>
+<span id="cb34-14"><a href="" aria-label="14"></a>            <span class="cf">return</span> obj.tolist()</span>
+<span id="cb34-15"><a href="" aria-label="15"></a>        <span class="cf">return</span> JSONEncoder.default(<span class="va">self</span>, obj)</span>
+<span id="cb34-16"><a href="" aria-label="16"></a></span>
+<span id="cb34-17"><a href="" aria-label="17"></a></span>
+<span id="cb34-18"><a href="" aria-label="18"></a><span class="co"># 1. Create environment</span></span>
+<span id="cb34-19"><a href="" aria-label="19"></a><span class="co"># No rendering during training is much faster</span></span>
+<span id="cb34-20"><a href="" aria-label="20"></a>env <span class="op">=</span> gym.make(<span class="st">"CartPole-v1"</span>)</span>
+<span id="cb34-21"><a href="" aria-label="21"></a>env.action_space.seed(<span class="dv">42</span>)</span>
+<span id="cb34-22"><a href="" aria-label="22"></a></span>
+<span id="cb34-23"><a href="" aria-label="23"></a></span>
+<span id="cb34-24"><a href="" aria-label="24"></a><span class="co"># 2. Discretize the continuous CartPole observation space</span></span>
+<span id="cb34-25"><a href="" aria-label="25"></a><span class="co"># Observation:</span></span>
+<span id="cb34-26"><a href="" aria-label="26"></a><span class="co"># [cart position,</span></span>
+<span id="cb34-27"><a href="" aria-label="27"></a><span class="co">#  cart velocity,</span></span>
+<span id="cb34-28"><a href="" aria-label="28"></a><span class="co">#  pole angle,</span></span>
+<span id="cb34-29"><a href="" aria-label="29"></a><span class="co">#  pole angular velocity]</span></span>
+<span id="cb34-30"><a href="" aria-label="30"></a></span>
+<span id="cb34-31"><a href="" aria-label="31"></a>num_bins <span class="op">=</span> (<span class="dv">6</span>,  <span class="co">#cart position</span></span>
+<span id="cb34-32"><a href="" aria-label="32"></a>            <span class="dv">6</span>,  <span class="co">#cart velocity</span></span>
+<span id="cb34-33"><a href="" aria-label="33"></a>            <span class="dv">12</span>, <span class="co">#pole angle</span></span>
+<span id="cb34-34"><a href="" aria-label="34"></a>            <span class="dv">12</span>) <span class="co">#pole angular velocity]</span></span>
+<span id="cb34-35"><a href="" aria-label="35"></a></span>
+<span id="cb34-36"><a href="" aria-label="36"></a><span class="co"># Practical ranges used for discretization.</span></span>
+<span id="cb34-37"><a href="" aria-label="37"></a><span class="co"># Velocity dimensions are theoretically unbounded,</span></span>
+<span id="cb34-38"><a href="" aria-label="38"></a><span class="co"># so we choose reasonable clipping ranges.</span></span>
+<span id="cb34-39"><a href="" aria-label="39"></a>lower_bounds <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.4</span>, <span class="op">-</span><span class="fl">3.0</span>, <span class="op">-</span><span class="fl">0.21</span>, <span class="op">-</span><span class="fl">3.5</span>])</span>
+<span id="cb34-40"><a href="" aria-label="40"></a>upper_bounds <span class="op">=</span> np.array([ <span class="fl">2.4</span>,  <span class="fl">3.0</span>,  <span class="fl">0.21</span>,  <span class="fl">3.5</span>])</span>
+<span id="cb34-41"><a href="" aria-label="41"></a></span>
+<span id="cb34-42"><a href="" aria-label="42"></a>bins <span class="op">=</span> [</span>
+<span id="cb34-43"><a href="" aria-label="43"></a>    np.linspace(lower_bounds[i],</span>
+<span id="cb34-44"><a href="" aria-label="44"></a>                upper_bounds[i],</span>
+<span id="cb34-45"><a href="" aria-label="45"></a>                num_bins[i] <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb34-46"><a href="" aria-label="46"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)</span>
+<span id="cb34-47"><a href="" aria-label="47"></a>]</span>
+<span id="cb34-48"><a href="" aria-label="48"></a></span>
+<span id="cb34-49"><a href="" aria-label="49"></a></span>
+<span id="cb34-50"><a href="" aria-label="50"></a><span class="kw">def</span> discretize(observation):</span>
+<span id="cb34-51"><a href="" aria-label="51"></a>    <span class="co">"""</span></span>
+<span id="cb34-52"><a href="" aria-label="52"></a><span class="co">    this function converts the continuous observation into a discrete state.</span></span>
+<span id="cb34-53"><a href="" aria-label="53"></a><span class="co">    """</span></span>
+<span id="cb34-54"><a href="" aria-label="54"></a></span>
+<span id="cb34-55"><a href="" aria-label="55"></a>    state <span class="op">=</span> <span class="bu">tuple</span>(</span>
+<span id="cb34-56"><a href="" aria-label="56"></a>        <span class="co">#np.digitize returns index of the bin to which each observation value belongs</span></span>
+<span id="cb34-57"><a href="" aria-label="57"></a>        np.digitize(observation[i], bins[i]) </span>
+<span id="cb34-58"><a href="" aria-label="58"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)</span>
+<span id="cb34-59"><a href="" aria-label="59"></a>    )</span>
+<span id="cb34-60"><a href="" aria-label="60"></a></span>
+<span id="cb34-61"><a href="" aria-label="61"></a>    <span class="cf">return</span> state</span>
+<span id="cb34-62"><a href="" aria-label="62"></a></span>
+<span id="cb34-63"><a href="" aria-label="63"></a></span>
+<span id="cb34-64"><a href="" aria-label="64"></a><span class="co"># 3. Initialize the Q-table</span></span>
+<span id="cb34-65"><a href="" aria-label="65"></a><span class="co"># Shape:</span></span>
+<span id="cb34-66"><a href="" aria-label="66"></a><span class="co"># state dimensions + number of actions</span></span>
+<span id="cb34-67"><a href="" aria-label="67"></a><span class="co">#</span></span>
+<span id="cb34-68"><a href="" aria-label="68"></a><span class="co"># 6 x 6 x 12 x 12 x 2</span></span>
+<span id="cb34-69"><a href="" aria-label="69"></a></span>
+<span id="cb34-70"><a href="" aria-label="70"></a>Q <span class="op">=</span> np.zeros(num_bins <span class="op">+</span> (env.action_space.n,))</span>
+<span id="cb34-71"><a href="" aria-label="71"></a></span>
+<span id="cb34-72"><a href="" aria-label="72"></a></span>
+<span id="cb34-73"><a href="" aria-label="73"></a><span class="co"># 4. Q-learning hyperparameters</span></span>
+<span id="cb34-74"><a href="" aria-label="74"></a>num_episodes <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb34-75"><a href="" aria-label="75"></a></span>
+<span id="cb34-76"><a href="" aria-label="76"></a>alpha <span class="op">=</span> <span class="fl">0.1</span>       <span class="co"># learning rate</span></span>
+<span id="cb34-77"><a href="" aria-label="77"></a>gamma <span class="op">=</span> <span class="fl">0.99</span>      <span class="co"># discount factor</span></span>
+<span id="cb34-78"><a href="" aria-label="78"></a></span>
+<span id="cb34-79"><a href="" aria-label="79"></a>epsilon_start <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb34-80"><a href="" aria-label="80"></a>epsilon_end <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb34-81"><a href="" aria-label="81"></a>epsilon_decay <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb34-82"><a href="" aria-label="82"></a></span>
+<span id="cb34-83"><a href="" aria-label="83"></a></span>
+<span id="cb34-84"><a href="" aria-label="84"></a>episode_rewards <span class="op">=</span> []</span>
+<span id="cb34-85"><a href="" aria-label="85"></a></span>
+<span id="cb34-86"><a href="" aria-label="86"></a></span>
+<span id="cb34-87"><a href="" aria-label="87"></a><span class="co"># 5. Training</span></span>
+<span id="cb34-88"><a href="" aria-label="88"></a><span class="cf">for</span> episode <span class="kw">in</span> tqdm(<span class="bu">range</span>(num_episodes)):</span>
+<span id="cb34-89"><a href="" aria-label="89"></a></span>
+<span id="cb34-90"><a href="" aria-label="90"></a>    observation, info <span class="op">=</span> env.reset()</span>
+<span id="cb34-91"><a href="" aria-label="91"></a></span>
+<span id="cb34-92"><a href="" aria-label="92"></a>    state <span class="op">=</span> discretize(observation)</span>
+<span id="cb34-93"><a href="" aria-label="93"></a></span>
+<span id="cb34-94"><a href="" aria-label="94"></a>    terminated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb34-95"><a href="" aria-label="95"></a>    truncated <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb34-96"><a href="" aria-label="96"></a></span>
+<span id="cb34-97"><a href="" aria-label="97"></a>    total_reward <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb34-98"><a href="" aria-label="98"></a></span>
+<span id="cb34-99"><a href="" aria-label="99"></a></span>
+<span id="cb34-100"><a href="" aria-label="100"></a>    <span class="co"># Gradually reduce exploration</span></span>
+<span id="cb34-101"><a href="" aria-label="101"></a>    epsilon <span class="op">=</span> (</span>
+<span id="cb34-102"><a href="" aria-label="102"></a>        epsilon_end</span>
+<span id="cb34-103"><a href="" aria-label="103"></a>        <span class="op">+</span> (epsilon_start <span class="op">-</span> epsilon_end)</span>
+<span id="cb34-104"><a href="" aria-label="104"></a>        <span class="op">*</span> np.exp(<span class="op">-</span>episode <span class="op">/</span> epsilon_decay)</span>
+<span id="cb34-105"><a href="" aria-label="105"></a>    )</span>
+<span id="cb34-106"><a href="" aria-label="106"></a></span>
+<span id="cb34-107"><a href="" aria-label="107"></a></span>
+<span id="cb34-108"><a href="" aria-label="108"></a>    <span class="cf">while</span> <span class="kw">not</span> (terminated <span class="kw">or</span> truncated):</span>
+<span id="cb34-109"><a href="" aria-label="109"></a></span>
+<span id="cb34-110"><a href="" aria-label="110"></a>        <span class="co"># We will adopt the epsilon-greedy policy</span></span>
+<span id="cb34-111"><a href="" aria-label="111"></a>        <span class="cf">if</span> np.random.random() <span class="op">&lt;</span> epsilon:</span>
+<span id="cb34-112"><a href="" aria-label="112"></a></span>
+<span id="cb34-113"><a href="" aria-label="113"></a>            <span class="co"># EXPLORE</span></span>
+<span id="cb34-114"><a href="" aria-label="114"></a>            action <span class="op">=</span> env.action_space.sample()</span>
+<span id="cb34-115"><a href="" aria-label="115"></a></span>
+<span id="cb34-116"><a href="" aria-label="116"></a>        <span class="cf">else</span>:</span>
+<span id="cb34-117"><a href="" aria-label="117"></a></span>
+<span id="cb34-118"><a href="" aria-label="118"></a>            <span class="co"># EXPLOIT what has been learned</span></span>
+<span id="cb34-119"><a href="" aria-label="119"></a>            action <span class="op">=</span> np.argmax(Q[state])</span>
+<span id="cb34-120"><a href="" aria-label="120"></a></span>
+<span id="cb34-121"><a href="" aria-label="121"></a></span>
+<span id="cb34-122"><a href="" aria-label="122"></a>        <span class="co"># now, interact with environment with the selected action</span></span>
+<span id="cb34-123"><a href="" aria-label="123"></a>        next_observation, reward, terminated, truncated, info <span class="op">=</span> <span class="op">\</span></span>
+<span id="cb34-124"><a href="" aria-label="124"></a>            env.step(action)</span>
+<span id="cb34-125"><a href="" aria-label="125"></a></span>
+<span id="cb34-126"><a href="" aria-label="126"></a>        next_state <span class="op">=</span> discretize(next_observation)</span>
+<span id="cb34-127"><a href="" aria-label="127"></a></span>
+<span id="cb34-128"><a href="" aria-label="128"></a></span>
+<span id="cb34-129"><a href="" aria-label="129"></a>        <span class="co"># -------------------------------------------------</span></span>
+<span id="cb34-130"><a href="" aria-label="130"></a>        <span class="co"># Q-learning update:</span></span>
+<span id="cb34-131"><a href="" aria-label="131"></a>        <span class="co"># Q(s,a) &lt;- Q(s,a) + alpha *( target - Q(s,a) )</span></span>
+<span id="cb34-132"><a href="" aria-label="132"></a>        <span class="co"># where,</span></span>
+<span id="cb34-133"><a href="" aria-label="133"></a>        <span class="co">#     target = r + gamma * max Q(s',a')</span></span>
+<span id="cb34-134"><a href="" aria-label="134"></a>        <span class="co"># -------------------------------------------------</span></span>
+<span id="cb34-135"><a href="" aria-label="135"></a></span>
+<span id="cb34-136"><a href="" aria-label="136"></a>        <span class="cf">if</span> terminated:</span>
+<span id="cb34-137"><a href="" aria-label="137"></a>            target <span class="op">=</span> reward</span>
+<span id="cb34-138"><a href="" aria-label="138"></a>        <span class="cf">else</span>:</span>
+<span id="cb34-139"><a href="" aria-label="139"></a>            target <span class="op">=</span> reward <span class="op">+</span> gamma <span class="op">*</span> np.<span class="bu">max</span>(Q[next_state])</span>
+<span id="cb34-140"><a href="" aria-label="140"></a></span>
+<span id="cb34-141"><a href="" aria-label="141"></a></span>
+<span id="cb34-142"><a href="" aria-label="142"></a>        Q[state <span class="op">+</span> (action,)] <span class="op">+=</span> alpha <span class="op">*</span> (target <span class="op">-</span> Q[state <span class="op">+</span> (action,)])</span>
+<span id="cb34-143"><a href="" aria-label="143"></a></span>
+<span id="cb34-144"><a href="" aria-label="144"></a></span>
+<span id="cb34-145"><a href="" aria-label="145"></a>        state <span class="op">=</span> next_state</span>
+<span id="cb34-146"><a href="" aria-label="146"></a></span>
+<span id="cb34-147"><a href="" aria-label="147"></a>        total_reward <span class="op">+=</span> reward</span>
+<span id="cb34-148"><a href="" aria-label="148"></a></span>
+<span id="cb34-149"><a href="" aria-label="149"></a></span>
+<span id="cb34-150"><a href="" aria-label="150"></a>    episode_rewards.append(total_reward)</span>
+<span id="cb34-151"><a href="" aria-label="151"></a></span>
+<span id="cb34-152"><a href="" aria-label="152"></a></span>
+<span id="cb34-153"><a href="" aria-label="153"></a>env.close()</span>
+<span id="cb34-154"><a href="" aria-label="154"></a><span class="bu">print</span>(<span class="ss">f'Training complete!'</span>)</span>
+<span id="cb34-155"><a href="" aria-label="155"></a></span>
+<span id="cb34-156"><a href="" aria-label="156"></a></span>
+<span id="cb34-157"><a href="" aria-label="157"></a><span class="co">#Post-processing / Debugging</span></span>
+<span id="cb34-158"><a href="" aria-label="158"></a><span class="bu">print</span>(<span class="ss">f'Debugging/post-processing begins...'</span>)</span>
+<span id="cb34-159"><a href="" aria-label="159"></a><span class="bu">print</span>(<span class="ss">f'Q.shape = </span><span class="sc">{</span>Q<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb34-160"><a href="" aria-label="160"></a></span>
+<span id="cb34-161"><a href="" aria-label="161"></a>indices  <span class="op">=</span> np.argwhere(Q <span class="op">!=</span> <span class="dv">0</span>)</span>
+<span id="cb34-162"><a href="" aria-label="162"></a><span class="bu">print</span>(<span class="ss">f'num of non-zero indices = </span><span class="sc">{</span><span class="bu">len</span>(indices)<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb34-163"><a href="" aria-label="163"></a><span class="cf">if</span> <span class="bu">len</span>(indices)<span class="op">&gt;</span><span class="dv">0</span>:</span>
+<span id="cb34-164"><a href="" aria-label="164"></a>    <span class="bu">print</span>(<span class="st">'first one: '</span>,indices[<span class="dv">0</span>])</span>
+<span id="cb34-165"><a href="" aria-label="165"></a></span>
+<span id="cb34-166"><a href="" aria-label="166"></a></span>
+<span id="cb34-167"><a href="" aria-label="167"></a>    the_state <span class="op">=</span> <span class="bu">tuple</span>(indices[<span class="dv">0</span>,:<span class="op">-</span><span class="dv">1</span>].tolist()) <span class="co">#based on the discretization/binning</span></span>
+<span id="cb34-168"><a href="" aria-label="168"></a>    <span class="bu">print</span>(<span class="ss">f'the_state = '</span>,the_state)</span>
+<span id="cb34-169"><a href="" aria-label="169"></a></span>
+<span id="cb34-170"><a href="" aria-label="170"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Please note: '</span>)</span>
+<span id="cb34-171"><a href="" aria-label="171"></a>    <span class="bu">print</span>(<span class="ss">f'the_state + (0,) = '</span>,the_state <span class="op">+</span> (<span class="dv">0</span>,))</span>
+<span id="cb34-172"><a href="" aria-label="172"></a>    <span class="bu">print</span>(<span class="ss">f'the_state + (1,) = '</span>,the_state <span class="op">+</span> (<span class="dv">1</span>,))</span>
+<span id="cb34-173"><a href="" aria-label="173"></a></span>
+<span id="cb34-174"><a href="" aria-label="174"></a>    <span class="co"># Q(s, action=0) = ?</span></span>
+<span id="cb34-175"><a href="" aria-label="175"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Q[the_state+(0,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">0</span>,)])</span>
+<span id="cb34-176"><a href="" aria-label="176"></a></span>
+<span id="cb34-177"><a href="" aria-label="177"></a>    <span class="co"># Q(s, action=1) = ?</span></span>
+<span id="cb34-178"><a href="" aria-label="178"></a>    <span class="bu">print</span>(<span class="ss">f'Q[the_state+(1,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">1</span>,)])</span>
+<span id="cb34-179"><a href="" aria-label="179"></a></span>
+<span id="cb34-180"><a href="" aria-label="180"></a></span>
+<span id="cb34-181"><a href="" aria-label="181"></a><span class="co"># Saving the model into a json file</span></span>
+<span id="cb34-182"><a href="" aria-label="182"></a>Q_json <span class="op">=</span> {<span class="st">"Q"</span>: Q}</span>
+<span id="cb34-183"><a href="" aria-label="183"></a>model_name <span class="op">=</span> <span class="ss">f"clever-cartpole-</span><span class="sc">{</span>num_episodes<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb34-184"><a href="" aria-label="184"></a>model_file <span class="op">=</span> <span class="ss">f'./models/</span><span class="sc">{</span>model_name<span class="sc">}</span><span class="ss">.json'</span></span>
+<span id="cb34-185"><a href="" aria-label="185"></a></span>
+<span id="cb34-186"><a href="" aria-label="186"></a><span class="co">#serialize the numpy ndarray, Q into json object</span></span>
+<span id="cb34-187"><a href="" aria-label="187"></a><span class="bu">print</span>(<span class="ss">f'serialize the numpy ndarray, Q into json object'</span>)</span>
+<span id="cb34-188"><a href="" aria-label="188"></a><span class="cf">with</span> <span class="bu">open</span>(model_file, <span class="st">"w"</span>) <span class="im">as</span> f:</span>
+<span id="cb34-189"><a href="" aria-label="189"></a>    json.dump(Q_json, f, cls<span class="op">=</span>NumpyArrayEncoder)</span>
+<span id="cb34-190"><a href="" aria-label="190"></a><span class="bu">print</span>(<span class="ss">f'Done serializing.'</span>)</span>
+<span id="cb34-191"><a href="" aria-label="191"></a></span>
+<span id="cb34-192"><a href="" aria-label="192"></a><span class="co">#now, let's confirm if we can read from the json file (i.e., deserialize)</span></span>
+<span id="cb34-193"><a href="" aria-label="193"></a><span class="bu">print</span>(<span class="ss">f'Now, let us read from the json file into a json object, and then into numpy array'</span>)</span>
+<span id="cb34-194"><a href="" aria-label="194"></a><span class="cf">with</span> <span class="bu">open</span>(model_file, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
+<span id="cb34-195"><a href="" aria-label="195"></a>    decoded_Q_json <span class="op">=</span> json.load(f)</span>
+<span id="cb34-196"><a href="" aria-label="196"></a></span>
+<span id="cb34-197"><a href="" aria-label="197"></a>    Q_loaded <span class="op">=</span> np.asarray(decoded_Q_json[<span class="st">"Q"</span>])</span>
+<span id="cb34-198"><a href="" aria-label="198"></a><span class="bu">print</span>(<span class="ss">f'Done deserializing.'</span>)</span>
+<span id="cb34-199"><a href="" aria-label="199"></a></span>
+<span id="cb34-200"><a href="" aria-label="200"></a><span class="bu">print</span>(<span class="ss">f'Verifying'</span>)</span>
+<span id="cb34-201"><a href="" aria-label="201"></a><span class="bu">print</span>(<span class="ss">f'== checking shapes =='</span>)</span>
+<span id="cb34-202"><a href="" aria-label="202"></a><span class="bu">print</span>(<span class="ss">f'Q.shape = </span><span class="sc">{</span>Q<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb34-203"><a href="" aria-label="203"></a><span class="bu">print</span>(<span class="ss">f'Q_loaded.shape = </span><span class="sc">{</span>Q_loaded<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb34-204"><a href="" aria-label="204"></a><span class="cf">assert</span> Q.shape <span class="op">==</span> Q_loaded.shape, <span class="st">"The shapes must match!"</span></span>
+<span id="cb34-205"><a href="" aria-label="205"></a><span class="bu">print</span>(<span class="ss">f'== Checking some non-zero values=='</span>)</span>
+<span id="cb34-206"><a href="" aria-label="206"></a><span class="co"># Q(s, action=0) = ?</span></span>
+<span id="cb34-207"><a href="" aria-label="207"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Q[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(0,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">0</span>,)])</span>
+<span id="cb34-208"><a href="" aria-label="208"></a><span class="co"># Q(s, action=1) = ?</span></span>
+<span id="cb34-209"><a href="" aria-label="209"></a><span class="bu">print</span>(<span class="ss">f'Q[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(1,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">1</span>,)])</span>
+<span id="cb34-210"><a href="" aria-label="210"></a></span>
+<span id="cb34-211"><a href="" aria-label="211"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Q_loaded[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(0,)] = '</span>,Q_loaded[the_state<span class="op">+</span>(<span class="dv">0</span>,)])</span>
+<span id="cb34-212"><a href="" aria-label="212"></a><span class="co"># Q(s, action=1) = ?</span></span>
+<span id="cb34-213"><a href="" aria-label="213"></a><span class="bu">print</span>(<span class="ss">f'Q_loaded[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(1,)] = '</span>,Q_loaded[the_state<span class="op">+</span>(<span class="dv">1</span>,)])</span>
+<span id="cb34-214"><a href="" aria-label="214"></a><span class="cf">assert</span> np.<span class="bu">abs</span>(Q[the_state<span class="op">+</span>(<span class="dv">0</span>,)]<span class="op">-</span>Q_loaded[the_state<span class="op">+</span>(<span class="dv">0</span>,)])<span class="op">&lt;</span><span class="fl">1e-6</span>, <span class="st">"The Q values should match!"</span></span>
+<span id="cb34-215"><a href="" aria-label="215"></a><span class="cf">assert</span> np.<span class="bu">abs</span>(Q[the_state<span class="op">+</span>(<span class="dv">1</span>,)]<span class="op">-</span>Q_loaded[the_state<span class="op">+</span>(<span class="dv">1</span>,)])<span class="op">&lt;</span><span class="fl">1e-6</span>, <span class="st">"The Q values should match!"</span></span>
+<span id="cb34-216"><a href="" aria-label="216"></a></span>
+<span id="cb34-217"><a href="" aria-label="217"></a><span class="bu">print</span>(<span class="ss">f'Done debugging'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="all-pieces-put-together-including-saving-the-model-for-later-use-1" class="slide level2 scrollable">
+<h2>All pieces put together including saving the model for later use</h2>
+<video autoplay="true" loop="true" controls="true" muted="true" width="100%">
+<source src="videos/clever-cartpole-training.mov">
+</video>
+</section>
+<section id="also-save-the-model-for-later-use" class="slide level2 scrollable">
+<h2>## Also, save the model for later use</h2>
+<ul>
+<li>What constitutes the model of our agent?
+<ul>
+<li>The observation space discretizer
+<ul>
+<li>We are not saving in this particular example, as it is a globally defined function.</li>
+</ul></li>
+<li>The <span class="math inline">\(Q\)</span>-table</li>
+</ul></li>
+<li>What to save as part of the model?
+<ol type="1">
+<li>The <span class="math inline">\(Q\)</span>-table</li>
+</ol></li>
+<li>We could use Python <code>joblib</code> or <code>pickle</code> to save the <code>Q</code>-table as a file via the <code>joblib.dump(Q,'Q.joblib')</code> or <code>pickle.dump(Q,'Q.pkl')</code>.
+<ul>
+<li>But, we won’t be doing that.</li>
+<li>The primary risk of using <code>joblib</code> and <code>pickle</code> in Python is <code>arbitrary code execution</code>, meaning that loading a tampered or untrusted file can silently run malicious code on your computer or server.
+<ul>
+<li>Joblib uses Python’s underlying pickle serialization model for many of its operations.</li>
+<li>The pickle format does not just store static data; it can store instructions on how to reconstruct complex Python objects, including executable code.</li>
+<li>When you call <code>load()</code> on a file, Python automatically executes any embedded instructions, giving an attacker full access to your system.</li>
+</ul></li>
+<li>It’s not like we will be hiding malicious codes into our own <code>joblib</code>/<code>pickle</code> files, but essentially with this exercise, I encourage you to get a better habit in storing your model files in a safe, transparent, sharable manner.
+<ul>
+<li>The best alternative could be to switch to formats that only store raw numbers and metadata without executable support, such as <code>Safetensors</code> for tensors, or <code>JSON</code> and <code>CSV</code>/<code>tsv</code> for basic data.</li>
+<li>In this exercise, we are saving the model, <code>Q</code>-table, which is a <code>numpy.ndarray</code> object as JSON file.</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="also-save-the-model-for-later-use-1" class="slide level2 scrollable">
+<h2>Also, save the model for later use</h2>
+<div id="c1ef3cab" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="" aria-label="1"></a><span class="im">import</span> json</span>
+<span id="cb35-2"><a href="" aria-label="2"></a></span>
+<span id="cb35-3"><a href="" aria-label="3"></a><span class="im">from</span> json <span class="im">import</span> JSONEncoder</span>
+<span id="cb35-4"><a href="" aria-label="4"></a><span class="kw">class</span> NumpyArrayEncoder(JSONEncoder):</span>
+<span id="cb35-5"><a href="" aria-label="5"></a>    <span class="kw">def</span> default(<span class="va">self</span>, obj):</span>
+<span id="cb35-6"><a href="" aria-label="6"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(obj, np.ndarray):</span>
+<span id="cb35-7"><a href="" aria-label="7"></a>            <span class="cf">return</span> obj.tolist()</span>
+<span id="cb35-8"><a href="" aria-label="8"></a>        <span class="cf">return</span> JSONEncoder.default(<span class="va">self</span>, obj)</span>
+<span id="cb35-9"><a href="" aria-label="9"></a></span>
+<span id="cb35-10"><a href="" aria-label="10"></a><span class="co"># Saving the model into a json file</span></span>
+<span id="cb35-11"><a href="" aria-label="11"></a>Q_json <span class="op">=</span> {<span class="st">"Q"</span>: Q}</span>
+<span id="cb35-12"><a href="" aria-label="12"></a>model_name <span class="op">=</span> <span class="ss">f"clever-cartpole-</span><span class="sc">{</span>num_episodes<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb35-13"><a href="" aria-label="13"></a>model_file <span class="op">=</span> <span class="ss">f'./models/</span><span class="sc">{</span>model_name<span class="sc">}</span><span class="ss">.json'</span></span>
+<span id="cb35-14"><a href="" aria-label="14"></a></span>
+<span id="cb35-15"><a href="" aria-label="15"></a><span class="co">#serialize the numpy ndarray, Q into json object</span></span>
+<span id="cb35-16"><a href="" aria-label="16"></a><span class="bu">print</span>(<span class="ss">f'serialize the numpy ndarray, Q into json object'</span>)</span>
+<span id="cb35-17"><a href="" aria-label="17"></a><span class="cf">with</span> <span class="bu">open</span>(model_file, <span class="st">"w"</span>) <span class="im">as</span> f:</span>
+<span id="cb35-18"><a href="" aria-label="18"></a>    json.dump(Q_json, f, cls<span class="op">=</span>NumpyArrayEncoder)</span>
+<span id="cb35-19"><a href="" aria-label="19"></a><span class="bu">print</span>(<span class="ss">f'Done serializing.'</span>)</span>
+<span id="cb35-20"><a href="" aria-label="20"></a></span>
+<span id="cb35-21"><a href="" aria-label="21"></a><span class="co">#now, let's confirm if we can read from the json file (i.e., deserialize)</span></span>
+<span id="cb35-22"><a href="" aria-label="22"></a><span class="bu">print</span>(<span class="ss">f'Now, let us read from the json file into a json object, and then into numpy array'</span>)</span>
+<span id="cb35-23"><a href="" aria-label="23"></a><span class="cf">with</span> <span class="bu">open</span>(model_file, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
+<span id="cb35-24"><a href="" aria-label="24"></a>    decoded_Q_json <span class="op">=</span> json.load(f)</span>
+<span id="cb35-25"><a href="" aria-label="25"></a></span>
+<span id="cb35-26"><a href="" aria-label="26"></a>    Q_loaded <span class="op">=</span> np.asarray(decoded_Q_json[<span class="st">"Q"</span>])</span>
+<span id="cb35-27"><a href="" aria-label="27"></a><span class="bu">print</span>(<span class="ss">f'Done deserializing.'</span>)</span>
+<span id="cb35-28"><a href="" aria-label="28"></a></span>
+<span id="cb35-29"><a href="" aria-label="29"></a><span class="bu">print</span>(<span class="ss">f'Verifying'</span>)</span>
+<span id="cb35-30"><a href="" aria-label="30"></a><span class="bu">print</span>(<span class="ss">f'== checking shapes =='</span>)</span>
+<span id="cb35-31"><a href="" aria-label="31"></a><span class="bu">print</span>(<span class="ss">f'Q.shape = </span><span class="sc">{</span>Q<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb35-32"><a href="" aria-label="32"></a><span class="bu">print</span>(<span class="ss">f'Q_loaded.shape = </span><span class="sc">{</span>Q_loaded<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb35-33"><a href="" aria-label="33"></a><span class="cf">assert</span> Q.shape <span class="op">==</span> Q_loaded.shape, <span class="st">"The shapes must match!"</span></span>
+<span id="cb35-34"><a href="" aria-label="34"></a><span class="bu">print</span>(<span class="ss">f'== Checking some non-zero values=='</span>)</span>
+<span id="cb35-35"><a href="" aria-label="35"></a><span class="co"># Q(s, action=0) = ?</span></span>
+<span id="cb35-36"><a href="" aria-label="36"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Q[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(0,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">0</span>,)])</span>
+<span id="cb35-37"><a href="" aria-label="37"></a><span class="co"># Q(s, action=1) = ?</span></span>
+<span id="cb35-38"><a href="" aria-label="38"></a><span class="bu">print</span>(<span class="ss">f'Q[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(1,)] = '</span>,Q[the_state<span class="op">+</span>(<span class="dv">1</span>,)])</span>
+<span id="cb35-39"><a href="" aria-label="39"></a></span>
+<span id="cb35-40"><a href="" aria-label="40"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Q_loaded[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(0,)] = '</span>,Q_loaded[the_state<span class="op">+</span>(<span class="dv">0</span>,)])</span>
+<span id="cb35-41"><a href="" aria-label="41"></a><span class="co"># Q(s, action=1) = ?</span></span>
+<span id="cb35-42"><a href="" aria-label="42"></a><span class="bu">print</span>(<span class="ss">f'Q_loaded[</span><span class="sc">{</span>the_state<span class="sc">}</span><span class="ss">+(1,)] = '</span>,Q_loaded[the_state<span class="op">+</span>(<span class="dv">1</span>,)])</span>
+<span id="cb35-43"><a href="" aria-label="43"></a><span class="cf">assert</span> np.<span class="bu">abs</span>(Q[the_state<span class="op">+</span>(<span class="dv">0</span>,)]<span class="op">-</span>Q_loaded[the_state<span class="op">+</span>(<span class="dv">0</span>,)])<span class="op">&lt;</span><span class="fl">1e-6</span>, <span class="st">"The Q values should match!"</span></span>
+<span id="cb35-44"><a href="" aria-label="44"></a><span class="cf">assert</span> np.<span class="bu">abs</span>(Q[the_state<span class="op">+</span>(<span class="dv">1</span>,)]<span class="op">-</span>Q_loaded[the_state<span class="op">+</span>(<span class="dv">1</span>,)])<span class="op">&lt;</span><span class="fl">1e-6</span>, <span class="st">"The Q values should match!"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="so-lets-build-clever-cartpole-agents" class="slide level2 scrollable">
+<h2>So, let’s build clever CartPole agents</h2>
+<blockquote>
+<p>Run with command: python clever-cartpole-v1-agent-training.py</p>
+</blockquote>
+<p>The following were run in Macbook Pro 2019 intel:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: right;"><code>num_episode</code></th>
+<th>Estimated time of completion</th>
+<th style="text-align: left;">Model file name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">100</td>
+<td>00’01”</td>
+<td style="text-align: left;">clever-cartpole-100.json</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">500</td>
+<td>00’01”</td>
+<td style="text-align: left;">clever-cartpole-500.json</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1,000</td>
+<td>00’01”</td>
+<td style="text-align: left;">clever-cartpole-1000.json</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5,000</td>
+<td>01’11”</td>
+<td style="text-align: left;">clever-cartpole-5000.json</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10,000</td>
+<td>02’12”</td>
+<td style="text-align: left;">clever-cartpole-10000.json</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20,000</td>
+<td>04’02”</td>
+<td style="text-align: left;">clever-cartpole-20000.json</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-to-use-a-model" class="slide level2 scrollable">
+<h2>How to use a model?</h2>
+<div id="0207f5a6" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="" aria-label="1"></a><span class="co"># Save this codeblock as: clever-cartpole-v1-with-gif.py</span></span>
+<span id="cb36-2"><a href="" aria-label="2"></a><span class="co"># Run it with Python Interpreter&gt; python clever-cartpole-v1-with-gif.py</span></span>
+<span id="cb36-3"><a href="" aria-label="3"></a></span>
+<span id="cb36-4"><a href="" aria-label="4"></a><span class="co"># The imports</span></span>
+<span id="cb36-5"><a href="" aria-label="5"></a><span class="im">import</span> gymnasium <span class="im">as</span> gym</span>
+<span id="cb36-6"><a href="" aria-label="6"></a><span class="im">import</span> math</span>
+<span id="cb36-7"><a href="" aria-label="7"></a><span class="im">import</span> imageio.v2 <span class="im">as</span> imageio</span>
+<span id="cb36-8"><a href="" aria-label="8"></a><span class="im">import</span> os</span>
+<span id="cb36-9"><a href="" aria-label="9"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb36-10"><a href="" aria-label="10"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb36-11"><a href="" aria-label="11"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb36-12"><a href="" aria-label="12"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb36-13"><a href="" aria-label="13"></a><span class="im">import</span> json</span>
+<span id="cb36-14"><a href="" aria-label="14"></a><span class="im">from</span> json <span class="im">import</span> JSONEncoder</span>
+<span id="cb36-15"><a href="" aria-label="15"></a><span class="kw">class</span> NumpyArrayEncoder(JSONEncoder):</span>
+<span id="cb36-16"><a href="" aria-label="16"></a>    <span class="kw">def</span> default(<span class="va">self</span>, obj):</span>
+<span id="cb36-17"><a href="" aria-label="17"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(obj, np.ndarray):</span>
+<span id="cb36-18"><a href="" aria-label="18"></a>            <span class="cf">return</span> obj.tolist()</span>
+<span id="cb36-19"><a href="" aria-label="19"></a>        <span class="cf">return</span> JSONEncoder.default(<span class="va">self</span>, obj)</span>
+<span id="cb36-20"><a href="" aria-label="20"></a></span>
+<span id="cb36-21"><a href="" aria-label="21"></a></span>
+<span id="cb36-22"><a href="" aria-label="22"></a></span>
+<span id="cb36-23"><a href="" aria-label="23"></a><span class="co">#number of timesteps</span></span>
+<span id="cb36-24"><a href="" aria-label="24"></a>n <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb36-25"><a href="" aria-label="25"></a></span>
+<span id="cb36-26"><a href="" aria-label="26"></a><span class="co">#The CartPole-v1 environment with a random agent</span></span>
+<span id="cb36-27"><a href="" aria-label="27"></a><span class="co"># Goal is to control the cart (i.e., platform) with a pole attached by its bottom prt.</span></span>
+<span id="cb36-28"><a href="" aria-label="28"></a><span class="co"># Trick: The pole tends to fall right or left and you would need to balance it by moving the cart to the right or left on every step.</span></span>
+<span id="cb36-29"><a href="" aria-label="29"></a>render_mode <span class="op">=</span> <span class="st">'rgb_array'</span> <span class="co">#or, 'human'</span></span>
+<span id="cb36-30"><a href="" aria-label="30"></a>env <span class="op">=</span> gym.make(<span class="st">"CartPole-v1"</span>, render_mode<span class="op">=</span>render_mode)</span>
+<span id="cb36-31"><a href="" aria-label="31"></a></span>
+<span id="cb36-32"><a href="" aria-label="32"></a></span>
+<span id="cb36-33"><a href="" aria-label="33"></a><span class="co"># Initialize empty buffer for the images that will be stiched to a gif</span></span>
+<span id="cb36-34"><a href="" aria-label="34"></a><span class="co"># Create a temp directory</span></span>
+<span id="cb36-35"><a href="" aria-label="35"></a>filenames <span class="op">=</span> []</span>
+<span id="cb36-36"><a href="" aria-label="36"></a><span class="cf">try</span>:</span>
+<span id="cb36-37"><a href="" aria-label="37"></a>    <span class="co"># Creates the directory; ignores the error if it already exists</span></span>
+<span id="cb36-38"><a href="" aria-label="38"></a>    Path(<span class="st">"./videos/temp"</span>).mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb36-39"><a href="" aria-label="39"></a><span class="cf">except</span>:</span>
+<span id="cb36-40"><a href="" aria-label="40"></a>    <span class="bu">print</span>(<span class="st">'Error: mkdir failed.'</span>)</span>
+<span id="cb36-41"><a href="" aria-label="41"></a></span>
+<span id="cb36-42"><a href="" aria-label="42"></a><span class="co">#Here below, we created the environment and initialized few variables.</span></span>
+<span id="cb36-43"><a href="" aria-label="43"></a>total_reward <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb36-44"><a href="" aria-label="44"></a>total_steps <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb36-45"><a href="" aria-label="45"></a></span>
+<span id="cb36-46"><a href="" aria-label="46"></a>episode <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb36-47"><a href="" aria-label="47"></a>step <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb36-48"><a href="" aria-label="48"></a></span>
+<span id="cb36-49"><a href="" aria-label="49"></a><span class="co"># ---------------------------------------------------------</span></span>
+<span id="cb36-50"><a href="" aria-label="50"></a><span class="co"># 2. Discretize the continuous CartPole observation space</span></span>
+<span id="cb36-51"><a href="" aria-label="51"></a><span class="co"># ---------------------------------------------------------</span></span>
+<span id="cb36-52"><a href="" aria-label="52"></a><span class="co"># Observation:</span></span>
+<span id="cb36-53"><a href="" aria-label="53"></a><span class="co"># [cart position,</span></span>
+<span id="cb36-54"><a href="" aria-label="54"></a><span class="co">#  cart velocity,</span></span>
+<span id="cb36-55"><a href="" aria-label="55"></a><span class="co">#  pole angle,</span></span>
+<span id="cb36-56"><a href="" aria-label="56"></a><span class="co">#  pole angular velocity]</span></span>
+<span id="cb36-57"><a href="" aria-label="57"></a></span>
+<span id="cb36-58"><a href="" aria-label="58"></a>num_bins <span class="op">=</span> (<span class="dv">6</span>,  <span class="co">#cart position</span></span>
+<span id="cb36-59"><a href="" aria-label="59"></a>            <span class="dv">6</span>,  <span class="co">#cart velocity</span></span>
+<span id="cb36-60"><a href="" aria-label="60"></a>            <span class="dv">12</span>, <span class="co">#pole angle</span></span>
+<span id="cb36-61"><a href="" aria-label="61"></a>            <span class="dv">12</span>) <span class="co">#pole angular velocity]</span></span>
+<span id="cb36-62"><a href="" aria-label="62"></a></span>
+<span id="cb36-63"><a href="" aria-label="63"></a><span class="co"># Practical ranges used for discretization.</span></span>
+<span id="cb36-64"><a href="" aria-label="64"></a><span class="co"># Velocity dimensions are theoretically unbounded,</span></span>
+<span id="cb36-65"><a href="" aria-label="65"></a><span class="co"># so we choose reasonable clipping ranges.</span></span>
+<span id="cb36-66"><a href="" aria-label="66"></a>lower_bounds <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.4</span>, <span class="op">-</span><span class="fl">3.0</span>, <span class="op">-</span><span class="fl">0.21</span>, <span class="op">-</span><span class="fl">3.5</span>])</span>
+<span id="cb36-67"><a href="" aria-label="67"></a>upper_bounds <span class="op">=</span> np.array([ <span class="fl">2.4</span>,  <span class="fl">3.0</span>,  <span class="fl">0.21</span>,  <span class="fl">3.5</span>])</span>
+<span id="cb36-68"><a href="" aria-label="68"></a></span>
+<span id="cb36-69"><a href="" aria-label="69"></a>bins <span class="op">=</span> [</span>
+<span id="cb36-70"><a href="" aria-label="70"></a>    np.linspace(lower_bounds[i],</span>
+<span id="cb36-71"><a href="" aria-label="71"></a>                upper_bounds[i],</span>
+<span id="cb36-72"><a href="" aria-label="72"></a>                num_bins[i] <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb36-73"><a href="" aria-label="73"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)</span>
+<span id="cb36-74"><a href="" aria-label="74"></a>]</span>
+<span id="cb36-75"><a href="" aria-label="75"></a></span>
+<span id="cb36-76"><a href="" aria-label="76"></a></span>
+<span id="cb36-77"><a href="" aria-label="77"></a><span class="kw">def</span> discretize(observation):</span>
+<span id="cb36-78"><a href="" aria-label="78"></a>    <span class="co">"""</span></span>
+<span id="cb36-79"><a href="" aria-label="79"></a><span class="co">    Convert the continuous observation into a discrete state.</span></span>
+<span id="cb36-80"><a href="" aria-label="80"></a><span class="co">    """</span></span>
+<span id="cb36-81"><a href="" aria-label="81"></a></span>
+<span id="cb36-82"><a href="" aria-label="82"></a>    state <span class="op">=</span> <span class="bu">tuple</span>(</span>
+<span id="cb36-83"><a href="" aria-label="83"></a>        <span class="co">#np.digitize returns index of the bin to which each observation value belongs</span></span>
+<span id="cb36-84"><a href="" aria-label="84"></a>        np.digitize(observation[i], bins[i]) </span>
+<span id="cb36-85"><a href="" aria-label="85"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)</span>
+<span id="cb36-86"><a href="" aria-label="86"></a>    )</span>
+<span id="cb36-87"><a href="" aria-label="87"></a></span>
+<span id="cb36-88"><a href="" aria-label="88"></a>    <span class="cf">return</span> state</span>
+<span id="cb36-89"><a href="" aria-label="89"></a></span>
+<span id="cb36-90"><a href="" aria-label="90"></a></span>
+<span id="cb36-91"><a href="" aria-label="91"></a><span class="co"># ---------------------------------------------------------</span></span>
+<span id="cb36-92"><a href="" aria-label="92"></a><span class="co"># 3. Initialize the Q-table</span></span>
+<span id="cb36-93"><a href="" aria-label="93"></a><span class="co"># ---------------------------------------------------------</span></span>
+<span id="cb36-94"><a href="" aria-label="94"></a><span class="co"># Shape:</span></span>
+<span id="cb36-95"><a href="" aria-label="95"></a><span class="co"># state dimensions + number of actions</span></span>
+<span id="cb36-96"><a href="" aria-label="96"></a><span class="co">#</span></span>
+<span id="cb36-97"><a href="" aria-label="97"></a><span class="co"># 6 x 6 x 12 x 12 x 2</span></span>
+<span id="cb36-98"><a href="" aria-label="98"></a></span>
+<span id="cb36-99"><a href="" aria-label="99"></a>Q <span class="op">=</span> np.zeros(num_bins <span class="op">+</span> (env.action_space.n,))</span>
+<span id="cb36-100"><a href="" aria-label="100"></a></span>
+<span id="cb36-101"><a href="" aria-label="101"></a>model_name <span class="op">=</span> <span class="st">"clever-cartpole-20000"</span></span>
+<span id="cb36-102"><a href="" aria-label="102"></a>stored_model_file <span class="op">=</span> <span class="ss">f'./models/</span><span class="sc">{</span>model_name<span class="sc">}</span><span class="ss">.json'</span></span>
+<span id="cb36-103"><a href="" aria-label="103"></a></span>
+<span id="cb36-104"><a href="" aria-label="104"></a><span class="co">#now let's load our model/brain of the clever cartpole agent</span></span>
+<span id="cb36-105"><a href="" aria-label="105"></a><span class="bu">print</span>(<span class="ss">f'Loading the brain of our agent from stored model file: ./models/'</span>)</span>
+<span id="cb36-106"><a href="" aria-label="106"></a><span class="cf">with</span> <span class="bu">open</span>(stored_model_file, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
+<span id="cb36-107"><a href="" aria-label="107"></a>    decoded_Q_json <span class="op">=</span> json.load(f)</span>
+<span id="cb36-108"><a href="" aria-label="108"></a></span>
+<span id="cb36-109"><a href="" aria-label="109"></a>    Q <span class="op">=</span> np.asarray(decoded_Q_json[<span class="st">"Q"</span>])</span>
+<span id="cb36-110"><a href="" aria-label="110"></a><span class="bu">print</span>(<span class="ss">f'Done loading brain!'</span>)</span>
+<span id="cb36-111"><a href="" aria-label="111"></a></span>
+<span id="cb36-112"><a href="" aria-label="112"></a><span class="co">#initialize</span></span>
+<span id="cb36-113"><a href="" aria-label="113"></a>observation, info <span class="op">=</span> env.reset(seed<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb36-114"><a href="" aria-label="114"></a></span>
+<span id="cb36-115"><a href="" aria-label="115"></a><span class="cf">for</span> i <span class="kw">in</span> tqdm(<span class="bu">range</span>(n)):</span>
+<span id="cb36-116"><a href="" aria-label="116"></a>    <span class="co"># Plot the previous state and save it as an image that </span></span>
+<span id="cb36-117"><a href="" aria-label="117"></a>    <span class="co"># will be later patched together as a .gif object</span></span>
+<span id="cb36-118"><a href="" aria-label="118"></a>    img <span class="op">=</span> plt.imshow(env.render())</span>
+<span id="cb36-119"><a href="" aria-label="119"></a></span>
+<span id="cb36-120"><a href="" aria-label="120"></a>    plt.title(<span class="st">"Episode: </span><span class="sc">{}</span><span class="st">, Step: </span><span class="sc">{}</span><span class="st">"</span>.<span class="bu">format</span>(episode,step))</span>
+<span id="cb36-121"><a href="" aria-label="121"></a>    plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb36-122"><a href="" aria-label="122"></a>    plt.savefig(<span class="st">"./videos/temp/</span><span class="sc">{}</span><span class="st">.png"</span>.<span class="bu">format</span>(i))</span>
+<span id="cb36-123"><a href="" aria-label="123"></a>    plt.close()</span>
+<span id="cb36-124"><a href="" aria-label="124"></a>    filenames.append(<span class="st">"./videos/temp/</span><span class="sc">{}</span><span class="st">.png"</span>.<span class="bu">format</span>(i))</span>
+<span id="cb36-125"><a href="" aria-label="125"></a></span>
+<span id="cb36-126"><a href="" aria-label="126"></a>    state <span class="op">=</span> discretize(observation) <span class="co">#discretize current state</span></span>
+<span id="cb36-127"><a href="" aria-label="127"></a></span>
+<span id="cb36-128"><a href="" aria-label="128"></a>    <span class="co">#Pick the action from the learned policy model</span></span>
+<span id="cb36-129"><a href="" aria-label="129"></a>    action <span class="op">=</span> np.argmax(Q[state])</span>
+<span id="cb36-130"><a href="" aria-label="130"></a>    </span>
+<span id="cb36-131"><a href="" aria-label="131"></a>    <span class="co">#Act on the picked action</span></span>
+<span id="cb36-132"><a href="" aria-label="132"></a>    observation, reward, terminated, truncated, info <span class="op">=</span> env.step(action)</span>
+<span id="cb36-133"><a href="" aria-label="133"></a></span>
+<span id="cb36-134"><a href="" aria-label="134"></a>    step <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb36-135"><a href="" aria-label="135"></a></span>
+<span id="cb36-136"><a href="" aria-label="136"></a>    total_reward <span class="op">+=</span> reward</span>
+<span id="cb36-137"><a href="" aria-label="137"></a>    total_steps <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb36-138"><a href="" aria-label="138"></a></span>
+<span id="cb36-139"><a href="" aria-label="139"></a>    <span class="cf">if</span> terminated:</span>
+<span id="cb36-140"><a href="" aria-label="140"></a>        episode <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb36-141"><a href="" aria-label="141"></a>        step <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb36-142"><a href="" aria-label="142"></a>        observation, info <span class="op">=</span> env.reset()</span>
+<span id="cb36-143"><a href="" aria-label="143"></a>        <span class="co">#break</span></span>
+<span id="cb36-144"><a href="" aria-label="144"></a></span>
+<span id="cb36-145"><a href="" aria-label="145"></a><span class="bu">print</span>(<span class="ss">f'Episode terminated in </span><span class="sc">{</span>total_steps<span class="sc">}</span><span class="ss"> steps'</span>)</span>
+<span id="cb36-146"><a href="" aria-label="146"></a><span class="bu">print</span>(<span class="ss">f'Total rewards accumulated = </span><span class="sc">{</span>total_reward<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb36-147"><a href="" aria-label="147"></a></span>
+<span id="cb36-148"><a href="" aria-label="148"></a></span>
+<span id="cb36-149"><a href="" aria-label="149"></a><span class="co"># Now, stitch the images together to produce a .gif</span></span>
+<span id="cb36-150"><a href="" aria-label="150"></a><span class="cf">with</span> imageio.get_writer(<span class="ss">f'./videos/</span><span class="sc">{</span>model_name<span class="sc">}</span><span class="ss">.gif'</span>, mode<span class="op">=</span><span class="st">'I'</span>) <span class="im">as</span> writer:</span>
+<span id="cb36-151"><a href="" aria-label="151"></a>    <span class="cf">for</span> filename <span class="kw">in</span> filenames:</span>
+<span id="cb36-152"><a href="" aria-label="152"></a>        image <span class="op">=</span> imageio.imread(filename)</span>
+<span id="cb36-153"><a href="" aria-label="153"></a>        writer.append_data(image)</span>
+<span id="cb36-154"><a href="" aria-label="154"></a></span>
+<span id="cb36-155"><a href="" aria-label="155"></a><span class="co"># Cleanup/delete the temporary images for the next run</span></span>
+<span id="cb36-156"><a href="" aria-label="156"></a><span class="cf">for</span> f <span class="kw">in</span> filenames:</span>
+<span id="cb36-157"><a href="" aria-label="157"></a>    os.remove(f)</span>
+<span id="cb36-158"><a href="" aria-label="158"></a></span>
+<span id="cb36-159"><a href="" aria-label="159"></a></span>
+<span id="cb36-160"><a href="" aria-label="160"></a>env.close()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="model-clever-cartpole-100.json" class="slide level2 scrollable">
+<h2>Model: clever-cartpole-100.json</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="videos/clever-cartpole-100.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="videos/clever-cartpole-100.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</section>
+<section id="model-clever-cartpole-500.json" class="slide level2 scrollable">
+<h2>Model: clever-cartpole-500.json</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="videos/clever-cartpole-500.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="videos/clever-cartpole-500.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</section>
+<section id="model-clever-cartpole-1000.json" class="slide level2 scrollable">
+<h2>Model: clever-cartpole-1000.json</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="videos/clever-cartpole-1000.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="videos/clever-cartpole-1000.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</section>
+<section id="model-clever-cartpole-5000.json" class="slide level2 scrollable">
+<h2>Model: clever-cartpole-5000.json</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="videos/clever-cartpole-5000.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="videos/clever-cartpole-5000.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</section>
+<section id="model-clever-cartpole-10000.json" class="slide level2 scrollable">
+<h2>Model: clever-cartpole-10000.json</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="videos/clever-cartpole-10000.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="videos/clever-cartpole-10000.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</section>
+<section id="model-clever-cartpole-20000.json" class="slide level2 scrollable">
+<h2>Model: clever-cartpole-20000.json</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="videos/clever-cartpole-20000.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img data-src="videos/clever-cartpole-20000.gif" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</section>
+<section id="plot-whether-the-agent-actually-learned-anything" class="slide level2 scrollable">
+<h2>Plot whether the agent actually learned anything</h2>
+<div id="e3834787" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="" aria-label="1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb37-2"><a href="" aria-label="2"></a></span>
+<span id="cb37-3"><a href="" aria-label="3"></a></span>
+<span id="cb37-4"><a href="" aria-label="4"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb37-5"><a href="" aria-label="5"></a></span>
+<span id="cb37-6"><a href="" aria-label="6"></a>plt.plot(episode_rewards, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb37-7"><a href="" aria-label="7"></a></span>
+<span id="cb37-8"><a href="" aria-label="8"></a><span class="co"># 100-episode moving average</span></span>
+<span id="cb37-9"><a href="" aria-label="9"></a>window <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb37-10"><a href="" aria-label="10"></a></span>
+<span id="cb37-11"><a href="" aria-label="11"></a>moving_average <span class="op">=</span> np.convolve(</span>
+<span id="cb37-12"><a href="" aria-label="12"></a>    episode_rewards,</span>
+<span id="cb37-13"><a href="" aria-label="13"></a>    np.ones(window) <span class="op">/</span> window,</span>
+<span id="cb37-14"><a href="" aria-label="14"></a>    mode<span class="op">=</span><span class="st">"valid"</span></span>
+<span id="cb37-15"><a href="" aria-label="15"></a>)</span>
+<span id="cb37-16"><a href="" aria-label="16"></a></span>
+<span id="cb37-17"><a href="" aria-label="17"></a>plt.plot(</span>
+<span id="cb37-18"><a href="" aria-label="18"></a>    <span class="bu">range</span>(window <span class="op">-</span> <span class="dv">1</span>, <span class="bu">len</span>(episode_rewards)),</span>
+<span id="cb37-19"><a href="" aria-label="19"></a>    moving_average,</span>
+<span id="cb37-20"><a href="" aria-label="20"></a>    linewidth<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb37-21"><a href="" aria-label="21"></a>    label<span class="op">=</span><span class="st">"100-episode moving average"</span></span>
+<span id="cb37-22"><a href="" aria-label="22"></a>)</span>
+<span id="cb37-23"><a href="" aria-label="23"></a></span>
+<span id="cb37-24"><a href="" aria-label="24"></a>plt.xlabel(<span class="st">"Episode"</span>)</span>
+<span id="cb37-25"><a href="" aria-label="25"></a>plt.ylabel(<span class="st">"Total Reward"</span>)</span>
+<span id="cb37-26"><a href="" aria-label="26"></a>plt.title(<span class="st">"CartPole-v1 Q-Learning Training"</span>)</span>
+<span id="cb37-27"><a href="" aria-label="27"></a>plt.legend()</span>
+<span id="cb37-28"><a href="" aria-label="28"></a></span>
+<span id="cb37-29"><a href="" aria-label="29"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="plot-whether-the-agent-actually-learned-anything-1" class="slide level2 scrollable">
+<h2>Plot whether the agent actually learned anything</h2>
+<p><a href="figs/clever-cartpole-100.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img data-src="figs/clever-cartpole-100.png"></a></p>
+</section>
+<section id="plot-whether-the-agent-actually-learned-anything-2" class="slide level2 scrollable">
+<h2>Plot whether the agent actually learned anything</h2>
+<p><a href="figs/clever-cartpole-500.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img data-src="figs/clever-cartpole-500.png"></a></p>
+</section>
+<section id="plot-whether-the-agent-actually-learned-anything-3" class="slide level2 scrollable">
+<h2>Plot whether the agent actually learned anything</h2>
+<p><a href="figs/clever-cartpole-1000.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img data-src="figs/clever-cartpole-1000.png"></a></p>
+</section>
+<section id="plot-whether-the-agent-actually-learned-anything-4" class="slide level2 scrollable">
+<h2>Plot whether the agent actually learned anything</h2>
+<p><a href="figs/clever-cartpole-5000.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img data-src="figs/clever-cartpole-5000.png"></a></p>
+</section>
+<section id="plot-whether-the-agent-actually-learned-anything-5" class="slide level2 scrollable">
+<h2>Plot whether the agent actually learned anything</h2>
+<p><a href="figs/clever-cartpole-10000.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img data-src="figs/clever-cartpole-10000.png"></a></p>
+</section>
+<section id="plot-whether-the-agent-actually-learned-anything-6" class="slide level2 scrollable">
+<h2>Plot whether the agent actually learned anything</h2>
+<p><a href="figs/clever-cartpole-20000.png" class="lightbox" data-gallery="quarto-lightbox-gallery-18"><img data-src="figs/clever-cartpole-20000.png"></a></p>
+</section>
+<section id="some-unresolved-questions-to-follow-up-with-next" class="slide level2 scrollable">
+<h2>Some unresolved questions to follow-up with next</h2>
+<blockquote>
+<p>Why does the Bellman equation justify our Q-learning update?</p>
+</blockquote>
+<blockquote>
+<p>Why should learning from the <strong>best future Q-value</strong> work?</p>
+</blockquote>
+<blockquote>
+<p>How should we choose <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\epsilon\)</span>?</p>
+</blockquote>
+<blockquote>
+<p>Is <span class="math inline">\(\epsilon\)</span>-greedy really the best way to explore?</p>
+</blockquote>
+<blockquote>
+<p>What happens when the state space has millions—or infinitely many—states?</p>
+</blockquote>
+<blockquote>
+<p>Can we replace the Q-table with a neural network?</p>
+</blockquote>
+<blockquote>
+<p>Why can deep Q-learning sometimes become unstable?</p>
+</blockquote>
+<blockquote>
+<p>What if actions themselves are continuous?</p>
+</blockquote>
+<blockquote>
+<p>What if rewards arrive only much later?</p>
+</blockquote>
+<p>Those are not problems with this example—they are exactly the questions that motivate the <strong>next several lectures in reinforcement learning</strong>.</p>
+<p>So I would frame the CartPole notebook not as <em>“Now you know Q-learning,”</em> but as:</p>
+<blockquote>
+<p><strong>We have just built our first agent that actually learns from experience. Now we need to understand why it works, when it fails, and how to make it much more powerful.</strong></p>
+</blockquote>
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="04--gymnasium-A-clever-CartPole_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    <script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+    (function() {
+      let previousOnload = window.onload;
+      window.onload = () => {
+        if (previousOnload) {
+          previousOnload();
+        }
+        lightboxQuarto.on('slide_before_load', (data) => {
+          const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+          const href = trigger.getAttribute('href');
+          if (href !== null) {
+            const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+            if (imgEl !== null) {
+              const srcAttr = imgEl.getAttribute("src");
+              if (srcAttr && srcAttr.startsWith("data:")) {
+                slideConfig.href = srcAttr;
+              }
+            }
+          } 
+        });
+      
+        lightboxQuarto.on('slide_after_load', (data) => {
+          const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(slideNode);
+          }
+        });
+      
+      };
+      
+    })();
+              </script>
+    
+
+</body></html>
