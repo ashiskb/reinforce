@@ -11,3 +11,7 @@ Welcome to another semester with Reinforcement Learning!
 
 ## Week 3 (08/31 -- 09/04)
 * Towards building a Cartpole Agent – a slightly clever one! [lecture-slides](week-03/04--gymnasium-A-clever-CartPole.html)
+
+## Week 4 (9/8 -- 9/11), excluding 9/7 as it was Labor day holiday
+* Types of Reinforcement Learning Algorithms and Deep Reinforcement Learning [lecture-slide](week-04/05--RL-and-DRL.html)
+* The `REINFORCE` algorithm, our first policy-gradient based reinforcement learning algorithm [lecture-slides](week-04/06--REINFORCE.html)
