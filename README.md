@@ -18,3 +18,7 @@ Welcome to another semester with Reinforcement Learning!
 
 ## Week 5 (9/14 -- 9/18)
 * From the `REINFORCE` algorithm to `Actor-Critic` [lecture-slide](week-05/Intro-to-Actor-Critics.html)
+
+## Week 6 (9/21 -- 9/25)
+* Mission `Critic` : how to improve our `Actor-Critic` we built last time? [lecture-slide](week-06/Mission-Critic-in-Actor-Critic.html)
+
