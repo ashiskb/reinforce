@@ -22,3 +22,17 @@ Welcome to another semester with Reinforcement Learning!
 ## Week 6 (9/21 -- 9/25)
 * Mission `Critic` : how to improve our `Actor-Critic` we built last time? [lecture-slide](week-06/Mission-Critic-in-Actor-Critic.html)
 
+## Week 7 (9/28 -- 10/2)
+* This week, I'd like to catch a breath -- no recording. Phew!!
+* Instead, here are few reading tasks for you. Be sure to carefully review the materials as there will be a follow up quiz on this next week:
+      - Chapter 6 from Deep Reinforcement Learning with Python by Sanghi [ RL-with-DQN.pdf](week-07/ref/RL-with-DQN.pdf)
+      - Supporting codes for Chapter 6 [ chapter6.zip ](week-07/ref/chapter6.zip)
+      - Playing Super Mario Bros with DQN (and DDQN) [ Ref: https://blog.paperspace.com/building-double-deep-q-network-super-mario-bros/](https://blog.paperspace.com/building-double-deep-q-network-super-mario-bros/). Please do make sure to record your agent's model in terms of sharable files like last time, and you record videos comprising per step actions ~ gifs? Also, now would be a good idea to get yourself familiar with gymnasium library's `RecordVideo` utility. I am pretty sure you haven't looked at it yet. 
+* That's it. We stepped away from the same old CartPole agent development. Next week, we will discuss other environments in solving real world problems, instead of just in game like scenarios. Cheers!!
+
+## Week 8 (10/5 -- 10/9)
+* Skipped due to AI summit 2026 related activities.
+
+
+## Week 9 (10/12 -- 10/16)
+* 
