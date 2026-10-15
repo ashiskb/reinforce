@@ -31,7 +31,10 @@ Welcome to another semester with Reinforcement Learning!
 * That's it. We stepped away from the same old CartPole agent development. Next week, we will discuss other environments in solving real world problems, instead of just in game like scenarios. Cheers!!
 
 ## Week 8 (10/5 -- 10/9)
-* Skipped due to AI summit 2026 related activities.
+* Skipped due to AI summit 2026 related activities. Here below is the recap:
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?si=gESTWfSdNVSGKKCe&amp;list=PLSL8Wsc-flno" title="CEDC AI Grand Prix 2026" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+ 
 
 
 ## Week 9 (10/12 -- 10/16)
