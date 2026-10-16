@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="Actor-Critic-to-PPO_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Actor-Critic-to-PPO_files/libs/quarto-html/tabby.min.js"></script>
+<script src="Actor-Critic-to-PPO_files/libs/quarto-html/popper.min.js"></script>
+<script src="Actor-Critic-to-PPO_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="Actor-Critic-to-PPO_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Actor-Critic-to-PPO_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="Actor-Critic-to-PPO_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Actor-Critic-to-PPO_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="Actor-Critic-to-PPO_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="Actor-Critic-to-PPO_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.10.18">
+
+  <meta name="author" content="Ashis Kumer Biswas, Ph.D.">
+  <title>From Actor-Critic to PPO and to racing …</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="Actor-Critic-to-PPO_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="Actor-Critic-to-PPO_files/libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="Actor-Critic-to-PPO_files/libs/revealjs/dist/theme/quarto-2740581606dc327e82f18f789b69d8a0.css">
+  <link href="Actor-Critic-to-PPO_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="Actor-Critic-to-PPO_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="Actor-Critic-to-PPO_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="Actor-Critic-to-PPO_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="Actor-Critic-to-PPO_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="Actor-Critic-to-PPO_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">From Actor-Critic to PPO and to racing …</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Ashis Kumer Biswas, Ph.D.
+</div>
+</div>
+</div>
+
+</section>
+<section id="main-theme-today-is" class="slide level2">
+<h2>Main theme today is –</h2>
+<blockquote>
+<p>Actor–Critic learns.</p>
+</blockquote>
+<blockquote>
+<p>PPO learns without changing its mind too violently.</p>
+</blockquote>
+<blockquote>
+<p>Autonomous driving with PPO.</p>
+</blockquote>
+</section>
+<section id="by-the-end-of-this-lecture" class="slide level2 scrollable">
+<h2>By the end of this lecture …</h2>
+<p>You will be able to –</p>
+<ul>
+<li>connect PPO to the Actor–Critic algorithm you already know;</li>
+<li>explain why large policy updates can destabilize learning;</li>
+<li>understand the probability ratio used by PPO;</li>
+<li>explain the intuition behind clipping;</li>
+<li>identify actor loss, critic loss, and entropy;</li>
+<li>understand why PPO works naturally for autonomous racing.</li>
+</ul>
+</section>
+<section id="a-quick-recap" class="slide level2 scrollable">
+<h2>A quick recap</h2>
+<p><span class="math display">\[
+s_t \rightarrow \text{Actor} \rightarrow a_t
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+s_t \rightarrow \text{Critic} \rightarrow V(s_t)
+\]</span></p>
+<p>From Week 6 and 7, with <span class="math inline">\(n\)</span>-step return, Advantage becomes:</p>
+<p><span class="math display">\[
+A_t \approx R_t^{(n)}-V(s_t)
+\]</span></p>
+<p>Do you remember –</p>
+<blockquote>
+<p>Positive advantage: “Do more of this action.”</p>
+</blockquote>
+<blockquote>
+<p>Negative advantage: “Do less of this action.”</p>
+</blockquote>
+<p>Actor–Critic might therefore use something like</p>
+<p><span class="math display">\[
+L_{\text{actor}} = -A_t \log \pi_\theta(a_t|s_t)
+\]</span></p>
+<p>The problem is not the idea.</p>
+<p>The problem is <strong>how far we change the policy after seeing that advantage.</strong></p>
+</section>
+<section id="the-problem-ppo-is-trying-to-solve" class="slide level2 scrollable">
+<h2>The problem PPO is trying to solve</h2>
+<p>Suppose our current policy says:</p>
+<p><span class="math display">\[
+\pi_{\text{old}}(\text{turn left}|s)=0.40
+\]</span></p>
+<p>The update discovers that turning left was good.</p>
+<p>A naïve update might suddenly produce:</p>
+<p><span class="math display">\[
+0.40 \rightarrow 0.90
+\]</span></p>
+<p>Ask:</p>
+<blockquote>
+<p>Is turning left really nine-times-out-of-ten the right decision?</p>
+</blockquote>
+<p>Probably not.</p>
+<p>One small batch of experiences has changed the policy dramatically.</p>
+<p>This is especially dangerous in a racing agent.</p>
+<p>A policy might change from:</p>
+<blockquote>
+<p>Slight steering correction</p>
+</blockquote>
+<p>to:</p>
+<blockquote>
+<p>aggressive left turn</p>
+</blockquote>
+<p>after only a few experiences.</p>
+</section>
+<section id="ppos-big-idea" class="slide level2 scrollable">
+<h2>PPO’s big idea</h2>
+<p><a href="figs/PPO-paper-arXiv.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img data-src="figs/PPO-paper-arXiv.png"></a></p>
+<ul>
+<li><code>Proximal Policy Optimization (PPO)</code> is an on-policy reinforcement learning algorithm introduced by OpenAI researchers in 2017. <a href="https://arxiv.org/abs/1707.06347">https://arxiv.org/abs/1707.06347</a></li>
+</ul>
+<blockquote>
+<p><strong>Learn from good experiences, but don’t let one training update change the policy too much.</strong></p>
+</blockquote>
+<p>That is the heart of PPO.</p>
+</section>
+<section id="the-probability-ratio" class="slide level2 scrollable">
+<h2>The probability ratio</h2>
+<p>PPO asks:</p>
+<p><span class="math display">\[
+r_t(\theta)=
+\frac{\pi_\theta(a_t|s_t)}
+{\pi_{\theta_{old}}(a_t|s_t)}
+\]</span></p>
+<p>Interpretation:</p>
+<h3 id="r_t-1"><span class="math inline">\(r_t = 1\)</span></h3>
+<p>Nothing changed.</p>
+<h3 id="r_t-1.1"><span class="math inline">\(r_t = 1.1\)</span></h3>
+<p>The action became 10% more likely.</p>
+<h3 id="r_t-0.8"><span class="math inline">\(r_t = 0.8\)</span></h3>
+<p>The action became 20% less likely.</p>
+<p>Example:</p>
+<p>Old policy:</p>
+<p><span class="math display">\[
+P(a)=0.40
+\]</span></p>
+<p>New policy:</p>
+<p><span class="math display">\[
+P(a)=0.48
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+r=\frac{0.48}{0.40}=1.20
+\]</span></p>
+<blockquote>
+<p>What does <span class="math inline">\(r=1.2\)</span> mean?</p>
+</blockquote>
+<p><strong>The new policy is 20% more likely to choose that action.</strong></p>
+</section>
+<section id="now-the-clipping" class="slide level2 scrollable">
+<h2>Now the clipping</h2>
+<blockquote>
+<p>PPO clips the probability ratio within a small interval <span class="math inline">\([1 - \epsilon, 1 + \epsilon]\)</span></p>
+</blockquote>
+<ul>
+<li>The clipping mechanism forces the ratio, <span class="math inline">\(r_t(\theta)\)</span>, to stay inside that interval if the update is going in an overly aggressive direction:
+<ul>
+<li>Say, with <span class="math inline">\(\epsilon=0.2\)</span>, the interval, i.e.&nbsp;the box <span class="math inline">\([1 - \epsilon, 1 + \epsilon] = [0.8, 1.2]\)</span></li>
+<li>If the math wants to push the ratio to <span class="math inline">\(1.5\)</span>, PPO clips it down to <span class="math inline">\(1.2\)</span>.</li>
+<li>If the math wants to drop the ratio to <span class="math inline">\(0.4\)</span>, PPO clips it up to <span class="math inline">\(0.8\)</span>.</li>
+</ul></li>
+</ul>
+<p>Here is the famous clipped surrogate objective of the PPO:</p>
+<p><span class="math display">\[
+L^{CLIP} =
+\min(
+\boxed{r_tA_t},
+\boxed{\operatorname{clip}(r_t,1-\epsilon,1+\epsilon)A_t}
+)
+\]</span></p>
+<blockquote>
+<p>You do <strong>not</strong> need to memorize this equation.</p>
+</blockquote>
+<p>Instead, understand:</p>
+<blockquote>
+<p><strong>PPO distrusts policy changes that become too large.</strong></p>
+</blockquote>
+</section>
+<section id="a-racing-analogy" class="slide level2 scrollable">
+<h2>A racing analogy</h2>
+<video autoplay="true" loop="true" controls="true" muted="true" width="100%">
+<source src="videos/job-31-0-video.mp4">
+</video>
+<h3 id="actorcritic">Actor–Critic</h3>
+<blockquote>
+<p>“That racing line worked. Turn harder next time!”</p>
+</blockquote>
+<h3 id="ppo">PPO</h3>
+<blockquote>
+<p>“That racing line worked. Turn slightly harder next time, evaluate again, and continue improving.”</p>
+</blockquote>
+<p>That is almost the entire conceptual motivation for PPO.</p>
+</section>
+<section id="ppo-still-has-a-critic" class="slide level2 scrollable">
+<h2>PPO still has a critic</h2>
+<p>Very important because it ties back to Week 6.</p>
+<p><span class="math display">\[
+L_{critic}
+=
+(V(s_t)-R_t)^2
+\]</span></p>
+<p>or Huber loss.</p>
+<p>You already know Huber loss.</p>
+<blockquote>
+<p>“Remember why we used Huber loss for our critic? Here is the critic again.”</p>
+</blockquote>
+<p>The current DeepRacer implementation exposes PPO settings including batch size, epochs, learning rate, entropy, loss type, and number of experience episodes between policy updates.</p>
+</section>
+<section id="add-entropy" class="slide level2 scrollable">
+<h2>Add entropy</h2>
+<p><span class="math display">\[
+\boxed{ L_{\text{total}} = L_{\text{actor}} + c_vL_{\text{critic}} - c_eH(\pi) }
+\]</span></p>
+<p>This equation is beautiful in many ways as it shows how PPO balances three competing goals:</p>
+<ol type="i">
+<li>learning good actions,</li>
+<li>estimating how good a state is, and</li>
+<li>continuing to explore.</li>
+</ol>
+<p>The important thing to note that we minimize this total loss, <span class="math inline">\(L_{\text{total}}\)</span> during training while each of the three terms has their own unique responsibilities.</p>
+</section>
+<section id="ppo-loss-function" class="slide level2 scrollable">
+<h2>PPO Loss function</h2>
+<p><span class="math display">\[
+\boxed{ L_{\text{total}} = L_{\text{actor}} + c_vL_{\text{critic}} - c_eH(\pi) }
+\]</span></p>
+<p>Let’s understand the three terms –</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 29%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Responsibility</th>
+<th>Intuition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(L_{\text{actor}}\)</span></td>
+<td>Improve the policy</td>
+<td>Choose better actions</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(L_{\text{critic}}\)</span></td>
+<td>Improve value prediction</td>
+<td>Accurately predict future rewards</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(H(\pi)\)</span></td>
+<td>Encourage exploration</td>
+<td>Don’t become overly confident too early</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(c_v,c_e\)</span></td>
+<td>Control relative influence</td>
+<td>Balance the three objectives</td>
+</tr>
+</tbody>
+</table>
+<h3 id="a.-actor-loss-learn-better-actions">A. Actor loss — learn better actions</h3>
+<p>Recall from REINFORCE and Actor–Critic:</p>
+<p><span class="math display">\[
+L_{\text{actor}} = -\log \pi_\theta(a_t|s_t) A_t
+\]</span></p>
+<p>If <span class="math inline">\(A_t &gt; 0\)</span>, the chosen action turned out better than expected. Minimizing the loss encourages the actor to make that action more likely.</p>
+<p>In PPO, we replace this with the clipped objective:</p>
+<p><span class="math display">\[
+L_{\text{actor}} = -\mathbb{E}_t \left[ \min\left( r_t A_t, \operatorname{clip}(r_t,1-\epsilon,1+\epsilon)A_t \right) \right]
+\]</span></p>
+<p>The underlying idea remains the same: encourage advantageous actions and discourage disadvantageous ones, while limiting the incentive for excessively large policy changes.</p>
+<h3 id="b.-critic-loss-accurately-predict-value">B. Critic loss — accurately predict value</h3>
+<p>The critic is trying to estimate expected discounted future rewards:</p>
+<p><span class="math inline">\(V_\phi(s_t)\)</span></p>
+<p>For example, a racing agent’s critic predicts how promising the current situation is.</p>
+<p>Its loss could be:</p>
+<p><span class="math display">\[
+L_{\text{critic}}= \mathbb{E}_t[(V_\phi(s_t)-R_t)^2]
+\]</span></p>
+<p>Here, <span class="math inline">\(R_t\)</span> is a return-based training target (often computed using GAE or another return estimator in PPO).</p>
+<p>We can also use Huber loss, which we discussed in the earlier Actor–Critic lecture.</p>
+<p>The coefficient <span class="math inline">\(c_v\)</span> determines how much weight we give to this prediction error within the combined objective.</p>
+<h3 id="c.-entropy-keep-exploring">C. Entropy — keep exploring</h3>
+<p>Now the most interesting addition.</p>
+<p>Suppose our racing agent has three possible actions:</p>
+<ul>
+<li><p>Turn left</p></li>
+<li><p>Go straight</p></li>
+<li><p>Turn right</p></li>
+<li><p>Consider the following policy, and explore how action probabilities affect entropy:</p>
+<ul>
+<li>Change the probability of driving straight to 34%. The remaining probability is divided equally between left and right.</li>
+<li>Probability of going straight 34.0%, Left 33.0%, Right 33.0%.
+<ul>
+<li>Therefore, Policy entropy <span class="math inline">\(H(\pi) = 1.099\)</span></li>
+<li>This is the highest policy entropy you could get at any moment, which is 1.099</li>
+<li>This indicates the highest exploration level. So, we get maximum entropy with equal action probabilities.</li>
+</ul></li>
+</ul></li>
+</ul>
+<p>Mathematically, the entropy of a discrete policy is:</p>
+<p><span class="math display">\[
+\boxed{ H(\pi(\cdot|s)) = -\sum_a \pi(a|s)\log \pi(a|s) }
+\]</span></p>
+<p>Entropy measures the uncertainty in the action distribution.</p>
+<ul>
+<li><strong>High entropy</strong>: The agent is uncertain and explores different actions.</li>
+<li><strong>Low entropy</strong>: The agent strongly favors particular actions.</li>
+</ul>
+<p>Neither of the two policies is universally better. We want exploration during learning, but ultimately want the agent to learn which actions work best.</p>
+</section>
+<section id="why-do-we-subtract-the-entropy" class="slide level2 scrollable">
+<h2>Why do we subtract the entropy?</h2>
+<p>Let’s recall from week 6 if you are still confused about this:</p>
+<p>Our optimizer minimizes the total loss.</p>
+<p><span class="math display">\[
+L_{\text{total}} = L_{\text{actor}} +c_v L_{\text{critic}} -\underbrace{c_eH(\pi)}_{\text{entropy bonus}}
+\]</span></p>
+<p>Because the entropy term has a negative sign, minimizing the total loss encourages larger entropy, all else being equal.</p>
+<p>Let’s calculate a simple example.</p>
+<p>Consider two racing policies, each with two possible actions.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Policy A</th>
+<th>Policy B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P(\text{Left})\)</span></td>
+<td>0.5</td>
+<td>0.9</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P(\text{Right})\)</span></td>
+<td>0.5</td>
+<td>0.1</td>
+</tr>
+<tr class="odd">
+<td>Entropy</td>
+<td>0.693</td>
+<td>0.325</td>
+</tr>
+</tbody>
+</table>
+<p>For illustration, set:</p>
+<p><span class="math inline">\(c_e=0.1\)</span></p>
+<p>Then the entropy contribution to the loss is:</p>
+<p><span class="math display">\[
+\begin{aligned} \text{Policy A: }&amp;-0.1(0.693)=-0.0693\\\ \text{Policy B: }&amp;-0.1(0.325)=-0.0325 \end{aligned}
+\]</span></p>
+<p>Since <span class="math inline">\(-0.0693\)</span> is smaller, the entropy component prefers Policy A.</p>
+<p>But remember, the total loss also includes the actor loss. If turning left consistently produces better outcomes, the actor’s learning signal can outweigh the entropy bonus.</p>
+<p>Entropy encourages exploration; it does not force the agent to remain random forever.</p>
+</section>
+<section id="what-exactly-do-the-coefficients-do" class="slide level2 scrollable">
+<h2>What exactly do the coefficients do?</h2>
+<p>The coefficients control how strongly each component influences training.</p>
+<p><span class="math display">\[
+L_{\text{total}} = L_{\text{actor}} + \underbrace{c_v}_{\text{value coefficient}} L_{\text{critic}} - \underbrace{c_e}_{\text{entropy coefficient}} H(\pi)
+\]</span></p>
+<p>Consider the following illustrative settings.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 37%">
+<col style="width: 49%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Smaller value</th>
+<th>Larger value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(c_v\)</span></td>
+<td>Less emphasis on critic accuracy</td>
+<td>More emphasis on critic accuracy</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(c_e\)</span></td>
+<td>Less pressure to explore</td>
+<td>More pressure to maintain action diversity</td>
+</tr>
+</tbody>
+</table>
+<p>Common illustrative PPO starting values are <span class="math inline">\(c_v=0.5\)</span> and <span class="math inline">\(c_e=0.01\)</span>, but these are not universal defaults.</p>
+<p><strong>One subtlety</strong>: if the actor and critic have separate networks, <span class="math inline">\(c_v\)</span> primarily scales the critic update. If they share neural-network layers, it also changes how strongly critic gradients influence those shared representations.</p>
+</section>
+<section id="an-example" class="slide level2 scrollable">
+<h2>An example</h2>
+<p>This demonstrates how the three loss terms are combined. The values are illustrative, not a complete PPO training loop.</p>
+<div id="6e429afd" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="" aria-label="1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="" aria-label="2"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb1-3"><a href="" aria-label="3"></a></span>
+<span id="cb1-4"><a href="" aria-label="4"></a><span class="co"># An illustrative PPO minibatch</span></span>
+<span id="cb1-5"><a href="" aria-label="5"></a>advantages <span class="op">=</span> torch.tensor([<span class="fl">1.5</span>, <span class="op">-</span><span class="fl">0.5</span>])</span>
+<span id="cb1-6"><a href="" aria-label="6"></a>ratios <span class="op">=</span> torch.tensor([<span class="fl">1.1</span>, <span class="fl">0.9</span>])</span>
+<span id="cb1-7"><a href="" aria-label="7"></a></span>
+<span id="cb1-8"><a href="" aria-label="8"></a>epsilon <span class="op">=</span> <span class="fl">0.2</span></span>
+<span id="cb1-9"><a href="" aria-label="9"></a></span>
+<span id="cb1-10"><a href="" aria-label="10"></a><span class="co"># 1. PPO actor loss</span></span>
+<span id="cb1-11"><a href="" aria-label="11"></a>surr1 <span class="op">=</span> ratios <span class="op">*</span> advantages</span>
+<span id="cb1-12"><a href="" aria-label="12"></a>surr2 <span class="op">=</span> torch.clamp(</span>
+<span id="cb1-13"><a href="" aria-label="13"></a>    ratios, <span class="dv">1</span><span class="op">-</span>epsilon, <span class="dv">1</span><span class="op">+</span>epsilon</span>
+<span id="cb1-14"><a href="" aria-label="14"></a>) <span class="op">*</span> advantages</span>
+<span id="cb1-15"><a href="" aria-label="15"></a></span>
+<span id="cb1-16"><a href="" aria-label="16"></a>actor_loss <span class="op">=</span> <span class="op">-</span>torch.<span class="bu">min</span>(surr1, surr2).mean()</span>
+<span id="cb1-17"><a href="" aria-label="17"></a></span>
+<span id="cb1-18"><a href="" aria-label="18"></a><span class="co"># 2. Critic loss</span></span>
+<span id="cb1-19"><a href="" aria-label="19"></a>values <span class="op">=</span> torch.tensor([<span class="fl">3.0</span>, <span class="fl">2.0</span>])</span>
+<span id="cb1-20"><a href="" aria-label="20"></a>returns <span class="op">=</span> torch.tensor([<span class="fl">3.5</span>, <span class="fl">1.5</span>])</span>
+<span id="cb1-21"><a href="" aria-label="21"></a></span>
+<span id="cb1-22"><a href="" aria-label="22"></a>critic_loss <span class="op">=</span> F.huber_loss(values, returns)</span>
+<span id="cb1-23"><a href="" aria-label="23"></a></span>
+<span id="cb1-24"><a href="" aria-label="24"></a><span class="co"># 3. Policy entropy (3 possible actions)</span></span>
+<span id="cb1-25"><a href="" aria-label="25"></a>probs <span class="op">=</span> torch.tensor([</span>
+<span id="cb1-26"><a href="" aria-label="26"></a>    [<span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>],</span>
+<span id="cb1-27"><a href="" aria-label="27"></a>    [<span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span>]</span>
+<span id="cb1-28"><a href="" aria-label="28"></a>])</span>
+<span id="cb1-29"><a href="" aria-label="29"></a></span>
+<span id="cb1-30"><a href="" aria-label="30"></a>dist <span class="op">=</span> torch.distributions.Categorical(probs<span class="op">=</span>probs)</span>
+<span id="cb1-31"><a href="" aria-label="31"></a>entropy <span class="op">=</span> dist.entropy().mean()</span>
+<span id="cb1-32"><a href="" aria-label="32"></a></span>
+<span id="cb1-33"><a href="" aria-label="33"></a><span class="co"># 4. Combined loss</span></span>
+<span id="cb1-34"><a href="" aria-label="34"></a>c_v <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb1-35"><a href="" aria-label="35"></a>c_e <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb1-36"><a href="" aria-label="36"></a></span>
+<span id="cb1-37"><a href="" aria-label="37"></a>total_loss <span class="op">=</span> (</span>
+<span id="cb1-38"><a href="" aria-label="38"></a>    actor_loss</span>
+<span id="cb1-39"><a href="" aria-label="39"></a>    <span class="op">+</span> c_v <span class="op">*</span> critic_loss</span>
+<span id="cb1-40"><a href="" aria-label="40"></a>    <span class="op">-</span> c_e <span class="op">*</span> entropy</span>
+<span id="cb1-41"><a href="" aria-label="41"></a>)</span>
+<span id="cb1-42"><a href="" aria-label="42"></a></span>
+<span id="cb1-43"><a href="" aria-label="43"></a><span class="bu">print</span>(<span class="ss">f"Actor Loss : </span><span class="sc">{</span>actor_loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb1-44"><a href="" aria-label="44"></a><span class="bu">print</span>(<span class="ss">f"Critic Loss: </span><span class="sc">{</span>critic_loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb1-45"><a href="" aria-label="45"></a><span class="bu">print</span>(<span class="ss">f"Entropy    : </span><span class="sc">{</span>entropy<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb1-46"><a href="" aria-label="46"></a><span class="bu">print</span>(<span class="ss">f"Total Loss : </span><span class="sc">{</span>total_loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Actor Loss : -0.6000
+Critic Loss: 0.1250
+Entropy    : 0.9454
+Total Loss : -0.5470</code></pre>
+</div>
+</div>
+<p>Notice that the total loss can be negative. That’s perfectly valid here; it isn’t a prediction-error metric that must stay nonnegative.</p>
+<p>In actual training, the probabilities, values, and PPO ratios come from neural-network computations so that gradients can flow through the losses. The old policy’s probabilities and advantage targets are treated as fixed during each PPO update.</p>
+</section>
+<section id="connect-it-back-to-the-cedc-ai-grand-prix" class="slide level2 scrollable">
+<h2>Connect it back to the CEDC AI Grand Prix</h2>
+<p>Imagine a DeepRacer approaching a sharp turn.</p>
+<iframe data-external="1" src="https://www.youtube.com/embed/UBT4oJH4qlI?si=4VwIfavgnsbplauy?start=4" width="560" height="315" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe data-external="1" src="https://www.youtube.com/embed/HBUGinvw-og?si=2ECQkI-cTTHtLfyo" width="560" height="315" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p>Each loss term asks a different question.</p>
+<p><strong>Actor</strong>: Was slowing down and turning left a good action? Should we increase its probability? Was turning to the opposite direction first before making a turn a good action?</p>
+<p><strong>Critic</strong>: Did we accurately predict how much future reward the car could earn from this situation?</p>
+<p><strong>Entropy</strong>: Are we becoming too confident in a particular steering decision before sufficiently exploring other possibilities?</p>
+<blockquote>
+<p>All three contribute to learning a better racing policy.</p>
+</blockquote>
+<p><strong>One important distinction</strong>: the <code>reward function</code> defines what successful racing means, while the <code>loss function</code> determines how the agent uses its experience to improve its policy and value estimates.</p>
+</section>
+<section id="therefore" class="slide level2 scrollable">
+<h2>Therefore …</h2>
+<p><span class="math display">\[
+L_{\text{total}} = L_{\text{actor}} + \underbrace{c_v}_{\text{value coefficient}} L_{\text{critic}} - \underbrace{c_e}_{\text{entropy coefficient}} H(\pi)
+\]</span></p>
+<blockquote>
+<p><strong>Actor loss</strong>: Learn which actions work best.</p>
+</blockquote>
+<blockquote>
+<p><strong>Critic loss</strong>: Learn to predict future rewards accurately.</p>
+</blockquote>
+<blockquote>
+<p><strong>Entropy bonus</strong>: Stay curious long enough to discover better actions.</p>
+</blockquote>
+<p>And underneath:</p>
+<p><span class="math display">\[
+\boxed{ \underbrace{L_{\text{actor}}}_{\text{Improve decisions}} + \underbrace{c_vL_{\text{critic}}}_{\text{Improve predictions}} - \underbrace{c_eH(\pi)}_{\text{Encourage exploration}} }
+\]</span></p>
+<p><strong>Takeaway</strong>: PPO is not simply trying to minimize prediction error. It is optimizing behavior while balancing value estimation and exploration, with clipping providing an additional safeguard against overly aggressive policy updates.</p>
+<p><strong>Now you are ready to connect your understanding of the PPO algorithm to the Grand Prix 2026 challenge</strong>: a racing agent needs to discover good behavior, learn from its results, and avoid becoming prematurely confident in a mediocre racing strategy.</p>
+<blockquote>
+<p>Question: &gt; <strong>Why might PPO be particularly appropriate when the policy controls a physical system like a race car?</strong></p>
+</blockquote>
+</section>
+<section id="ppo-algorithm" class="slide level2 scrollable">
+<h2>PPO algorithm</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb3-1"><a href="" aria-label="1"></a>Initialize Actor and Critic</span>
+<span id="cb3-2"><a href="" aria-label="2"></a></span>
+<span id="cb3-3"><a href="" aria-label="3"></a>repeat:</span>
+<span id="cb3-4"><a href="" aria-label="4"></a></span>
+<span id="cb3-5"><a href="" aria-label="5"></a>    Drive using current policy</span>
+<span id="cb3-6"><a href="" aria-label="6"></a></span>
+<span id="cb3-7"><a href="" aria-label="7"></a>    Collect:</span>
+<span id="cb3-8"><a href="" aria-label="8"></a>        state</span>
+<span id="cb3-9"><a href="" aria-label="9"></a>        action</span>
+<span id="cb3-10"><a href="" aria-label="10"></a>        reward</span>
+<span id="cb3-11"><a href="" aria-label="11"></a>        next state</span>
+<span id="cb3-12"><a href="" aria-label="12"></a></span>
+<span id="cb3-13"><a href="" aria-label="13"></a>    Estimate returns</span>
+<span id="cb3-14"><a href="" aria-label="14"></a></span>
+<span id="cb3-15"><a href="" aria-label="15"></a>    Compute advantages</span>
+<span id="cb3-16"><a href="" aria-label="16"></a></span>
+<span id="cb3-17"><a href="" aria-label="17"></a>    Compare:</span>
+<span id="cb3-18"><a href="" aria-label="18"></a>        new action probability</span>
+<span id="cb3-19"><a href="" aria-label="19"></a>        old action probability</span>
+<span id="cb3-20"><a href="" aria-label="20"></a></span>
+<span id="cb3-21"><a href="" aria-label="21"></a>    Compute PPO clipped actor loss</span>
+<span id="cb3-22"><a href="" aria-label="22"></a></span>
+<span id="cb3-23"><a href="" aria-label="23"></a>    Compute critic loss</span>
+<span id="cb3-24"><a href="" aria-label="24"></a></span>
+<span id="cb3-25"><a href="" aria-label="25"></a>    Add entropy bonus</span>
+<span id="cb3-26"><a href="" aria-label="26"></a></span>
+<span id="cb3-27"><a href="" aria-label="27"></a>    Update network</span>
+<span id="cb3-28"><a href="" aria-label="28"></a></span>
+<span id="cb3-29"><a href="" aria-label="29"></a>repeat</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The key ideas being:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb4-1"><a href="" aria-label="1"></a>             EXPERIENCE</span>
+<span id="cb4-2"><a href="" aria-label="2"></a>                 |</span>
+<span id="cb4-3"><a href="" aria-label="3"></a>                 v</span>
+<span id="cb4-4"><a href="" aria-label="4"></a>Observation --&gt; ACTOR --&gt; Action</span>
+<span id="cb4-5"><a href="" aria-label="5"></a>     |             |</span>
+<span id="cb4-6"><a href="" aria-label="6"></a>     |             v</span>
+<span id="cb4-7"><a href="" aria-label="7"></a>     +---------&gt; CRITIC</span>
+<span id="cb4-8"><a href="" aria-label="8"></a>                    |</span>
+<span id="cb4-9"><a href="" aria-label="9"></a>                    v</span>
+<span id="cb4-10"><a href="" aria-label="10"></a>                 Advantage</span>
+<span id="cb4-11"><a href="" aria-label="11"></a>                    |</span>
+<span id="cb4-12"><a href="" aria-label="12"></a>                    v</span>
+<span id="cb4-13"><a href="" aria-label="13"></a>            PPO clipped update</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="a-numerical-example" class="slide level2 scrollable">
+<h2>A numerical example</h2>
+<p><span class="math display">\[
+P_{\text{old}}(a)=0.5
+\]</span></p>
+<p><span class="math display">\[
+P_{\text{new}}(a)=0.7
+\]</span></p>
+<p><span class="math display">\[
+A=+2
+\]</span></p>
+<p><span class="math display">\[
+\epsilon=0.2
+\]</span></p>
+<p>Then:</p>
+<p><span class="math display">\[
+r=\frac{0.7}{0.5}=1.4
+\]</span></p>
+<p>but clipping limits the effective ratio to:</p>
+<p><span class="math display">\[
+1.2
+\]</span></p>
+<blockquote>
+<p>Do you wonder why shouldn’t PPO fully exploit the 1.4 ratio?</p>
+</blockquote>
+<ul>
+<li class="fragment">Because the policy has changed too much based on this batch.</li>
+</ul>
+</section>
+<section id="back-to-cedc-ai-grand-prix-2026" class="slide level2 scrollable">
+<h2>Back to CEDC AI Grand Prix 2026</h2>
+<blockquote>
+<p>Here is a Amazon AWS Deepracer, an RL Racing Agent</p>
+</blockquote>
+<p><a href="figs/deepracer-1.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img data-src="figs/deepracer-1.jpg"></a></p>
+</section>
+<section id="back-to-cedc-ai-grand-prix-2026-1" class="slide level2 scrollable">
+<h2>Back to CEDC AI Grand Prix 2026</h2>
+<blockquote>
+<p>USB camera module is just plug-and-play!</p>
+</blockquote>
+<p><a href="figs/deepracer-2.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img data-src="figs/deepracer-2.jpg"></a></p>
+</section>
+<section id="back-to-cedc-ai-grand-prix-2026-2" class="slide level2 scrollable">
+<h2>Back to CEDC AI Grand Prix 2026</h2>
+<blockquote>
+<p>Here is an anatomy of an RL Racing Agent</p>
+</blockquote>
+<video autoplay="true" loop="true" controls="true" muted="true" width="100%">
+<source src="videos/deepracer-diagram.mov">
+</video>
+<p>Video courtesy: <a href="https://youtu.be/SuD599dtVnQ?si=9sehhMQ6cknPx39z">AWS DeepRacer: Get Hands-on with AI by Seyha Kry, Todd Bevins, Parth Desai</a></p>
+</section>
+<section id="back-to-cedc-ai-grand-prix-2026-3" class="slide level2 scrollable">
+<h2>Back to CEDC AI Grand Prix 2026</h2>
+<p>Few AWS DeepRacer properties:</p>
+<ul>
+<li>1:18 4WD scale car</li>
+<li>Intel Atom Processor</li>
+<li>Intel dist of OpenVINO toolkit</li>
+<li>Single Camera (4MP)</li>
+<li>System memory: 4GB</li>
+<li>802.11ac Wi-Fi</li>
+<li>Ubuntu 20.04</li>
+<li>ROS 2 Foxy Fitzroy</li>
+<li>Built by Amazon</li>
+<li><strong>Where to train the RL agent?</strong>
+<ul>
+<li>Deepracer on AWS cloud (Amazon proprietary instances at <a href="https://docs.aws.amazon.com/solutions/deepracer-on-aws/">https://docs.aws.amazon.com/solutions/deepracer-on-aws/</a></li>
+<li>Deepracer for cloud (community driven effort at <a href="https://aws-deepracer-community.github.io/deepracer-for-cloud/">https://aws-deepracer-community.github.io/deepracer-for-cloud/</a>. This project makes it possible to train locally. Yayyy!!!)</li>
+</ul></li>
+</ul>
+</section>
+<section id="central-question" class="slide level2 scrollable">
+<h2>Central question</h2>
+<blockquote>
+<p><strong>When a DeepRacer turns left, what exactly caused that decision?</strong></p>
+</blockquote>
+<p>The current DeepRacer workflow is essentially:</p>
+<p><span class="math display">\[
+\text{camera observation}
+\rightarrow
+\text{policy network}
+\rightarrow
+\text{steering/speed}
+\rightarrow
+\text{environment}
+\rightarrow
+\text{reward}
+\rightarrow
+\text{learning}
+\]</span></p>
+<p>AWS describes the policy network as receiving camera imagery and predicting the vehicle’s next action; it may also evaluate state value depending on the training algorithm.</p>
+</section>
+<section id="another-question" class="slide level2 scrollable">
+<h2>Another question</h2>
+<p><a href="figs/car-state1.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img data-src="figs/car-state1.jpg"></a></p>
+<blockquote>
+<p>What does the car actually know?</p>
+</blockquote>
+<ul>
+<li class="fragment">where it is</li>
+<li class="fragment">curvature</li>
+<li class="fragment">track coordinates</li>
+<li class="fragment">distance from center</li>
+<li class="fragment">waypoint number</li>
+</ul>
+<ul>
+<li class="fragment"><img data-src="figs/waypoints.jpg"></li>
+</ul>
+<ul>
+<li class="fragment">etc</li>
+</ul>
+<ul>
+<li class="fragment">The policy primarily sees <strong>sensor observations such as camera imagery</strong>.</li>
+<li class="fragment">The training environment knows additional quantities that can be supplied to the <strong>reward function</strong>.</li>
+<li class="fragment">AWS correctly describes DeepRacer as <strong>partially observed</strong> because the camera does not capture the complete underlying environment state.</li>
+</ul>
+<ul>
+<li class="fragment">Do you recall when we learned about Partially Observable MDP?</li>
+</ul>
+</section>
+<section id="anatomy-of-one-timestep" class="slide level2 scrollable">
+<h2>Anatomy of one timestep</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb5-1"><a href="" aria-label="1"></a>           CAMERA IMAGE</span>
+<span id="cb5-2"><a href="" aria-label="2"></a>                |</span>
+<span id="cb5-3"><a href="" aria-label="3"></a>                v</span>
+<span id="cb5-4"><a href="" aria-label="4"></a>         Neural Network</span>
+<span id="cb5-5"><a href="" aria-label="5"></a>                |</span>
+<span id="cb5-6"><a href="" aria-label="6"></a>           Policy π(a|s)</span>
+<span id="cb5-7"><a href="" aria-label="7"></a>                |</span>
+<span id="cb5-8"><a href="" aria-label="8"></a>                v</span>
+<span id="cb5-9"><a href="" aria-label="9"></a>    +-----------------------+</span>
+<span id="cb5-10"><a href="" aria-label="10"></a>    | steering = -15°       |</span>
+<span id="cb5-11"><a href="" aria-label="11"></a>    | speed    = 2.0 m/s    |</span>
+<span id="cb5-12"><a href="" aria-label="12"></a>    +-----------------------+</span>
+<span id="cb5-13"><a href="" aria-label="13"></a>                |</span>
+<span id="cb5-14"><a href="" aria-label="14"></a>                v</span>
+<span id="cb5-15"><a href="" aria-label="15"></a>          SIMULATOR/CAR</span>
+<span id="cb5-16"><a href="" aria-label="16"></a>                |</span>
+<span id="cb5-17"><a href="" aria-label="17"></a>       new observation</span>
+<span id="cb5-18"><a href="" aria-label="18"></a>                |</span>
+<span id="cb5-19"><a href="" aria-label="19"></a>                v</span>
+<span id="cb5-20"><a href="" aria-label="20"></a>        reward_function()</span>
+<span id="cb5-21"><a href="" aria-label="21"></a>                |</span>
+<span id="cb5-22"><a href="" aria-label="22"></a>                v</span>
+<span id="cb5-23"><a href="" aria-label="23"></a>              +2.4</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You see:</p>
+<p><strong>The reward function does not steer the car.</strong></p>
+<p>This is worth mentioning that:</p>
+<blockquote>
+<p>The reward function <strong>teaches</strong>.</p>
+</blockquote>
+<blockquote>
+<p>The policy <strong>drives</strong>.</p>
+</blockquote>
+</section>
+<section id="observation" class="slide level2 scrollable">
+<h2>Observation</h2>
+<p>Conceptually:</p>
+<p><span class="math display">\[
+\text{Image}
+\rightarrow
+\text{Convolution Neural Network (CNN)}
+\rightarrow
+\text{features}
+\rightarrow
+\text{policy/value outputs}
+\]</span></p>
+<p>Your Deep Learning and RL courses suddenly meet.</p>
+</section>
+<section id="action-space" class="slide level2 scrollable">
+<h2>Action space</h2>
+<p>DeepRacer supports both <strong>discrete and continuous action spaces</strong>:</p>
+<ul>
+<li>In a <strong>discrete action space</strong>, each action corresponds to a predefined steering/speed pair;</li>
+<li>A <strong>continuous action space </strong>control allows steering and speed to be selected from ranges. <a href="https://docs.aws.amazon.com/solutions/latest/deepracer-on-aws/action-space-reward-function.html">AWS Documentation</a></li>
+</ul>
+<p>Example:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Action</th>
+<th style="text-align: right;">Steering</th>
+<th style="text-align: right;">Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">−30°</td>
+<td style="text-align: right;">1.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">−15°</td>
+<td style="text-align: right;">1.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0°</td>
+<td style="text-align: right;">3.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">+15°</td>
+<td style="text-align: right;">1.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">+30°</td>
+<td style="text-align: right;">1.0</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Why wouldn’t we simply allow maximum speed for every steering angle?</p>
+</blockquote>
+<p>What should the racing strategy?</p>
+</section>
+<section id="reward-function-anatomy" class="slide level2 scrollable">
+<h2>Reward function anatomy</h2>
+<blockquote>
+<p>The AWS DeepRacer reward function takes a dictionary object as the input coming from the Environment.</p>
+</blockquote>
+<div id="46592de8" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="" aria-label="1"></a><span class="kw">def</span> reward_function(params) :</span>
+<span id="cb6-2"><a href="" aria-label="2"></a></span>
+<span id="cb6-3"><a href="" aria-label="3"></a>    reward <span class="op">=</span> ...</span>
+<span id="cb6-4"><a href="" aria-label="4"></a></span>
+<span id="cb6-5"><a href="" aria-label="5"></a>    <span class="cf">return</span> <span class="bu">float</span>(reward)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<blockquote>
+<p>The <code>params</code> dictionary object contains the following key-value pairs:</p>
+</blockquote>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><code>params</code> keys</th>
+<th style="text-align: left;">type</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">“all_wheels_on_track”</td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">flag to indicate if the agent is on the track</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“x”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">agent’s x-coordinate in meters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“y”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">agent’s y-coordinate in meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“closest_objects”</td>
+<td style="text-align: left;">[int, int]</td>
+<td style="text-align: left;">zero-based indices of the two closest objects to the agent’s current position of (x, y).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“closest_waypoints”</td>
+<td style="text-align: left;">[int, int]</td>
+<td style="text-align: left;">indices of the two nearest waypoints.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“distance_from_center”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">distance in meters from the track center</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“is_crashed”</td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">Boolean flag to indicate whether the agent has crashed.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“is_left_of_center”</td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">Flag to indicate if the agent is on the left side to the track center or not.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“is_offtrack”</td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">Boolean flag to indicate whether the agent has gone off track.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“is_reversed”</td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">flag to indicate if the agent is driving clockwise (True) or counter clockwise (False).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“heading”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">agent’s yaw in degrees</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“objects_distance”</td>
+<td style="text-align: left;">[float, ]</td>
+<td style="text-align: left;">list of the objects’ distances in meters between 0 and track_length in relation to the starting line.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“objects_heading”</td>
+<td style="text-align: left;">[float, ]</td>
+<td style="text-align: left;">list of the objects’ headings in degrees between -180 and 180.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“objects_left_of_center”</td>
+<td style="text-align: left;">[Boolean, ]</td>
+<td style="text-align: left;">list of Boolean flags indicating whether elements’ objects are left of the center (True) or not (False).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“objects_location”</td>
+<td style="text-align: left;">[(float, float),]</td>
+<td style="text-align: left;">list of object locations [(x,y), …].</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“objects_speed”</td>
+<td style="text-align: left;">[float, ]</td>
+<td style="text-align: left;">list of the objects’ speeds in meters per second.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“progress”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">percentage of track completed</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“speed”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">agent’s speed in meters per second (m/s)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“steering_angle”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">agent’s steering angle in degrees</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“steps”</td>
+<td style="text-align: left;">int</td>
+<td style="text-align: left;">number steps completed</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“track_length”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">track length in meters.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“track_width”</td>
+<td style="text-align: left;">float</td>
+<td style="text-align: left;">width of the track</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">“waypoints”</td>
+<td style="text-align: left;">[(float, float), ]</td>
+<td style="text-align: left;">list of (x,y) as milestones along the track center</td>
+</tr>
+</tbody>
+</table>
+<p>Following <code>params</code> keys you can recognize intuitively:</p>
+<h3 id="paramsall_wheels_on_track"><code>params['all_wheels_on_track']</code></h3>
+<p><a href="figs/all-wheels-on-track-002.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img data-src="figs/all-wheels-on-track-002.png"></a></p>
+<h3 id="paramswaypoints-and-paramsclosest_waypoints"><code>params['waypoints']</code> and <code>params['closest_waypoints']</code></h3>
+<p><a href="figs/waypoints.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img data-src="figs/waypoints.jpg"></a></p>
+<h3 id="paramsdistance_from_center"><code>params['distance_from_center']</code></h3>
+<p><a href="figs/distance-from-center-001.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img data-src="figs/distance-from-center-001.png"></a></p>
+<h3 id="paramstrack_width"><code>params['track_width']</code></h3>
+<p><a href="figs/track-width-001.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img data-src="figs/track-width-001.png"></a></p>
+<h3 id="paramsspeed"><code>params['speed']</code></h3>
+<ul>
+<li>The observed speed of the agent; Range 0.0:5.0 (m/s)</li>
+</ul>
+<h3 id="paramssteering_angle"><code>params['steering_angle']</code></h3>
+<p><a href="figs/steering-angle-001.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img data-src="figs/steering-angle-001.png"></a></p>
+<h3 id="paramsheading"><code>params['heading']</code></h3>
+<p><img data-src="figs/heading-001.png"> * Heading direction, in degrees, of the agent with respect to the x-axis of the coordinate system.</p>
+<h3 id="paramsprogress"><code>params['progress']</code></h3>
+<ul>
+<li>Percentage of track completed. Range 0:100</li>
+</ul>
+<h3 id="paramssteps"><code>params['steps']</code></h3>
+<ul>
+<li>Number of steps completed. A step corresponds to an action taken by the agent following the current policy.</li>
+</ul>
+<p>These types of track, progress, steering, position, and waypoint information are exposed to DeepRacer reward functions by the environment. <a href="https://docs.aws.amazon.com/solutions/latest/deepracer-on-aws/create-a-model.html">Details can be found in this AWS Documentation</a></p>
+</section>
+<section id="the-simplest-reward" class="slide level2 scrollable">
+<h2>The simplest reward</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="" aria-label="1"></a><span class="kw">def</span> reward_function(params):</span>
+<span id="cb7-2"><a href="" aria-label="2"></a></span>
+<span id="cb7-3"><a href="" aria-label="3"></a>    <span class="cf">if</span> <span class="kw">not</span> params[<span class="st">"all_wheels_on_track"</span>]:</span>
+<span id="cb7-4"><a href="" aria-label="4"></a>        <span class="cf">return</span> <span class="fl">1e-3</span></span>
+<span id="cb7-5"><a href="" aria-label="5"></a></span>
+<span id="cb7-6"><a href="" aria-label="6"></a>    <span class="cf">return</span> <span class="fl">1.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p>What behavior does this teach?</p>
+</blockquote>
+<ul>
+<li class="fragment"><strong>Don’t leave the track.</strong></li>
+<li class="fragment">But it says nothing about being fast.</li>
+</ul>
+</section>
+<section id="reward-design-version-2" class="slide level2 scrollable">
+<h2>Reward design version 2</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="" aria-label="1"></a><span class="kw">def</span> reward_function(params):</span>
+<span id="cb8-2"><a href="" aria-label="2"></a></span>
+<span id="cb8-3"><a href="" aria-label="3"></a>    <span class="cf">if</span> <span class="kw">not</span> params[<span class="st">"all_wheels_on_track"</span>]:</span>
+<span id="cb8-4"><a href="" aria-label="4"></a>        <span class="cf">return</span> <span class="fl">1e-3</span></span>
+<span id="cb8-5"><a href="" aria-label="5"></a></span>
+<span id="cb8-6"><a href="" aria-label="6"></a>    distance <span class="op">=</span> params[<span class="st">"distance_from_center"</span>]</span>
+<span id="cb8-7"><a href="" aria-label="7"></a>    width <span class="op">=</span> params[<span class="st">"track_width"</span>]</span>
+<span id="cb8-8"><a href="" aria-label="8"></a></span>
+<span id="cb8-9"><a href="" aria-label="9"></a>    <span class="cf">if</span> distance <span class="op">&lt;</span> <span class="fl">0.1</span> <span class="op">*</span> width:</span>
+<span id="cb8-10"><a href="" aria-label="10"></a>        reward <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb8-11"><a href="" aria-label="11"></a>    <span class="cf">elif</span> distance <span class="op">&lt;</span> <span class="fl">0.25</span> <span class="op">*</span> width:</span>
+<span id="cb8-12"><a href="" aria-label="12"></a>        reward <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb8-13"><a href="" aria-label="13"></a>    <span class="cf">else</span>:</span>
+<span id="cb8-14"><a href="" aria-label="14"></a>        reward <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb8-15"><a href="" aria-label="15"></a></span>
+<span id="cb8-16"><a href="" aria-label="16"></a>    <span class="cf">return</span> <span class="bu">float</span>(reward)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p>What behavior will this likely produce?</p>
+</blockquote>
+<ul>
+<li class="fragment"><strong>Safe center-line driving.</strong></li>
+<li class="fragment">Will the fastest racing line necessarily be the center line?</li>
+<li class="fragment"><strong>No.</strong></li>
+</ul>
+</section>
+<section id="reward-hacking" class="slide level2 scrollable">
+<h2>Reward hacking</h2>
+<p>Suppose we write:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="" aria-label="1"></a>reward <span class="op">+=</span> <span class="dv">2</span> <span class="op">*</span> speed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You may think:</p>
+<blockquote>
+<p>FAST = GOOD.</p>
+</blockquote>
+<p>The model may discover:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb10-1"><a href="" aria-label="1"></a>Go very fast</span>
+<span id="cb10-2"><a href="" aria-label="2"></a>     ↓</span>
+<span id="cb10-3"><a href="" aria-label="3"></a>Crash</span>
+<span id="cb10-4"><a href="" aria-label="4"></a>     ↓</span>
+<span id="cb10-5"><a href="" aria-label="5"></a>Still collect many speed rewards</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<h3 id="this-is-a-specification-problem">This is a specification problem</h3>
+<p>We told the agent what to maximize.</p>
+<p>It maximized it.</p>
+<p>Just not in the way we intended.</p>
+</section>
+<section id="progress-versus-steps" class="slide level2 scrollable">
+<h2>Progress versus steps</h2>
+<p><span class="math display">\[
+\text{efficiency}
+=
+\frac{\text{progress}}{\text{steps}}
+\]</span></p>
+<p>Approximately:</p>
+<blockquote>
+<p>How much track progress are we getting per action?</p>
+</blockquote>
+<p>Then:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="" aria-label="1"></a>efficiency <span class="op">=</span> progress <span class="op">/</span> <span class="bu">max</span>(steps, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This creates the connection:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb12-1"><a href="" aria-label="1"></a>SAFE</span>
+<span id="cb12-2"><a href="" aria-label="2"></a> +</span>
+<span id="cb12-3"><a href="" aria-label="3"></a>FAST</span>
+<span id="cb12-4"><a href="" aria-label="4"></a> +</span>
+<span id="cb12-5"><a href="" aria-label="5"></a>FORWARD PROGRESS</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>rather than raw speed.</p>
+</section>
+<section id="grand-prix-algorithm-anatomy-summary" class="slide level2 scrollable">
+<h2>Grand Prix algorithm anatomy summary</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb13-1"><a href="" aria-label="1"></a>Camera</span>
+<span id="cb13-2"><a href="" aria-label="2"></a>   ↓</span>
+<span id="cb13-3"><a href="" aria-label="3"></a>Policy network</span>
+<span id="cb13-4"><a href="" aria-label="4"></a>   ↓</span>
+<span id="cb13-5"><a href="" aria-label="5"></a>Action distribution</span>
+<span id="cb13-6"><a href="" aria-label="6"></a>   ↓</span>
+<span id="cb13-7"><a href="" aria-label="7"></a>Steering + throttle</span>
+<span id="cb13-8"><a href="" aria-label="8"></a>   ↓</span>
+<span id="cb13-9"><a href="" aria-label="9"></a>Vehicle / simulator</span>
+<span id="cb13-10"><a href="" aria-label="10"></a>   ↓</span>
+<span id="cb13-11"><a href="" aria-label="11"></a>Reward</span>
+<span id="cb13-12"><a href="" aria-label="12"></a>   ↓</span>
+<span id="cb13-13"><a href="" aria-label="13"></a>Advantage</span>
+<span id="cb13-14"><a href="" aria-label="14"></a>   ↓</span>
+<span id="cb13-15"><a href="" aria-label="15"></a>PPO</span>
+<span id="cb13-16"><a href="" aria-label="16"></a>   ↓</span>
+<span id="cb13-17"><a href="" aria-label="17"></a>Updated policy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p><strong>Where can a Grand Prix team actually intervene?</strong></p>
+</blockquote>
+<p>Answer:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb14-1"><a href="" aria-label="1"></a>Reward design</span>
+<span id="cb14-2"><a href="" aria-label="2"></a>Action space</span>
+<span id="cb14-3"><a href="" aria-label="3"></a>Hyperparameters</span>
+<span id="cb14-4"><a href="" aria-label="4"></a>Training duration</span>
+<span id="cb14-5"><a href="" aria-label="5"></a>Training strategy</span>
+<span id="cb14-6"><a href="" aria-label="6"></a>Track analysis</span>
+<span id="cb14-7"><a href="" aria-label="7"></a>Evaluation methodology</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="start-with-the-actual-optimization-problem" class="slide level2 scrollable">
+<h2>Start with the actual optimization problem</h2>
+<p><span class="math display">\[
+\boxed{
+\text{Fast}
++
+\text{Complete}
++
+\text{Consistent}
+}
+\]</span></p>
+<p>A 6-second lap that crashes 80% of the time is probably inferior to a slightly slower model that reliably completes valid laps.</p>
+<p>Thus:</p>
+<p><span class="math display">\[
+\text{Best policy}
+\neq
+\text{fastest instantaneous speed}
+\]</span></p>
+</section>
+<section id="winning-strategy-1-establish-a-baseline" class="slide level2 scrollable">
+<h2>Winning Strategy #1 — Establish a baseline</h2>
+<p>Start simple.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="" aria-label="1"></a><span class="cf">if</span> <span class="kw">not</span> all_wheels_on_track:</span>
+<span id="cb15-2"><a href="" aria-label="2"></a>    <span class="cf">return</span> <span class="fl">1e-3</span></span>
+<span id="cb15-3"><a href="" aria-label="3"></a></span>
+<span id="cb15-4"><a href="" aria-label="4"></a><span class="cf">return</span> <span class="fl">1.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Train.</p>
+<p>Measure.</p>
+<p>Then change <strong>one idea at a time</strong>.</p>
+<p>This introduces proper experimental methodology.</p>
+</section>
+<section id="winning-strategy-2-dont-blindly-follow-the-center" class="slide level2 scrollable">
+<h2>Winning Strategy #2 — Don’t blindly follow the center</h2>
+<p>Draw a corner:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb16-1"><a href="" aria-label="1"></a>Outside</span>
+<span id="cb16-2"><a href="" aria-label="2"></a>   \</span>
+<span id="cb16-3"><a href="" aria-label="3"></a>    \</span>
+<span id="cb16-4"><a href="" aria-label="4"></a>     \_______</span>
+<span id="cb16-5"><a href="" aria-label="5"></a>             \</span>
+<span id="cb16-6"><a href="" aria-label="6"></a>              \ Inside</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then introduce racing line:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb17-1"><a href="" aria-label="1"></a>outside → inside/apex → outside</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A visual footprint:</p>
+<p><a href="figs/center-line-vs-race-lines.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img data-src="figs/center-line-vs-race-lines.jpg"></a></p>
+<p>Various race lines are possible to think and think hard:</p>
+<p><a href="figs/race-lines.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img data-src="figs/race-lines.png"></a></p>
+<p>Explain:</p>
+<blockquote>
+<p>Center-line following teaches navigation.</p>
+</blockquote>
+<blockquote>
+<p>Racing-line following teaches racing.</p>
+</blockquote>
+<p>To define your race-line, you can use:</p>
+<ul>
+<li>waypoints;</li>
+<li>heading;</li>
+<li>position;</li>
+<li>track geometry.</li>
+</ul>
+</section>
+<section id="winning-strategy-3-speed-should-depend-on-curvature" class="slide level2 scrollable">
+<h2>Winning Strategy #3 — Speed should depend on curvature</h2>
+<p>Straight:</p>
+<p><span class="math display">\[
+v_{\text{target}} \uparrow
+\]</span></p>
+<p>Sharp corner:</p>
+<p><span class="math display">\[
+v_{\text{target}} \downarrow
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+v_{\text{target}}
+=
+f(\text{track curvature})
+\]</span></p>
+<p>Conceptually:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="" aria-label="1"></a><span class="cf">if</span> sharp_turn:</span>
+<span id="cb18-2"><a href="" aria-label="2"></a>    target_speed <span class="op">=</span> <span class="fl">1.5</span></span>
+<span id="cb18-3"><a href="" aria-label="3"></a><span class="cf">else</span>:</span>
+<span id="cb18-4"><a href="" aria-label="4"></a>    target_speed <span class="op">=</span> <span class="fl">3.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then reward closeness to the target speed.</p>
+</section>
+<section id="winning-strategy-4-direction-matters" class="slide level2 scrollable">
+<h2>Winning Strategy #4 — Direction matters</h2>
+<p><img data-src="figs/waypoints.jpg"> <img data-src="figs/heading-001.png"></p>
+<p>Calculate desired track direction from upcoming waypoints:</p>
+<p><span class="math display">\[
+\theta_{\text{track}}
+\]</span></p>
+<p>Compare with vehicle heading:</p>
+<p><span class="math display">\[
+\Delta\theta =
+|\theta_{\text{car}}-\theta_{\text{track}}|
+\]</span></p>
+<p>Then:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="" aria-label="1"></a><span class="cf">if</span> direction_diff <span class="op">&gt;</span> threshold:</span>
+<span id="cb19-2"><a href="" aria-label="2"></a>    reward <span class="op">*=</span> <span class="fl">0.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now they understand why waypoint information matters.</p>
+<p>AWS’s own examples use nearby waypoints and heading to construct direction-aware rewards. <a href="https://docs.aws.amazon.com/solutions/latest/deepracer-on-aws/create-a-model.html">AWS Documentation</a></p>
+</section>
+<section id="winning-strategy-5-reward-smooth-control" class="slide level2 scrollable">
+<h2>Winning Strategy #5 — Reward smooth control</h2>
+<blockquote>
+<p>What happens if the policy repeatedly chooses</p>
+</blockquote>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb20-1"><a href="" aria-label="1"></a>+30°</span>
+<span id="cb20-2"><a href="" aria-label="2"></a>-30°</span>
+<span id="cb20-3"><a href="" aria-label="3"></a>+30°</span>
+<span id="cb20-4"><a href="" aria-label="4"></a>-30°</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>?</p>
+<ul>
+<li class="fragment">The car zigzags.</li>
+<li class="fragment">Please discourage unnecessarily large steering, particularly at high speed.</li>
+<li class="fragment">However, penalizing steering too strongly prevents the vehicle from making necessary turns.</li>
+<li class="fragment">Remember: <strong>reward shaping involves trade-offs.</strong></li>
+</ul>
+</section>
+<section id="winning-strategy-6-design-the-action-space" class="slide level2 scrollable">
+<h2>Winning Strategy #6 — Design the action space</h2>
+<p>This deserves more attention than most DeepRacer tutorials give it.</p>
+<p>Bad action space:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb21-1"><a href="" aria-label="1"></a>Steering: -30, 0, +30</span>
+<span id="cb21-2"><a href="" aria-label="2"></a>Speed: 4 m/s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The policy has almost no fine control.</p>
+<p>Better:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb22-1"><a href="" aria-label="1"></a>-30°  slow</span>
+<span id="cb22-2"><a href="" aria-label="2"></a>-20°  slow</span>
+<span id="cb22-3"><a href="" aria-label="3"></a>-10°  medium</span>
+<span id="cb22-4"><a href="" aria-label="4"></a>  0°  fast</span>
+<span id="cb22-5"><a href="" aria-label="5"></a>+10°  medium</span>
+<span id="cb22-6"><a href="" aria-label="6"></a>+20°  slow</span>
+<span id="cb22-7"><a href="" aria-label="7"></a>+30°  slow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p><strong>The learner cannot discover an action that you never gave it.</strong></p>
+</blockquote>
+</section>
+<section id="winning-strategy-7-hyperparameters-matter" class="slide level2 scrollable">
+<h2>Winning Strategy #7 — Hyperparameters matter</h2>
+<p>Let’s bring PPO back.</p>
+<p>DeepRacer’s current PPO configuration exposes parameters such as learning rate, entropy, batch size and number of epochs. <a href="https://docs.aws.amazon.com/solutions/latest/deepracer-on-aws/create-a-model.html">AWS Documentation</a></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Too low</th>
+<th>Too high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Learning rate</td>
+<td>learns slowly</td>
+<td>unstable updates</td>
+</tr>
+<tr class="even">
+<td>Entropy</td>
+<td>stops exploring</td>
+<td>too random</td>
+</tr>
+<tr class="odd">
+<td>Epochs</td>
+<td>underlearns experience</td>
+<td>overuses same data</td>
+</tr>
+<tr class="even">
+<td>Batch size</td>
+<td>noisy updates</td>
+<td>slower/generalized updates</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Which parameter sounds most closely connected to exploration?</p>
+</blockquote>
+<ul>
+<li class="fragment"><strong>Entropy.</strong></li>
+</ul>
+</section>
+<section id="winning-strategy-8-training-reward-race-performance" class="slide level2 scrollable">
+<h2>Winning Strategy #8 — Training reward ≠ race performance</h2>
+<p>This is perhaps the most important Grand Prix lesson.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a href="" aria-label="1"></a>Training reward ↑↑↑</span>
+<span id="cb23-2"><a href="" aria-label="2"></a>        |</span>
+<span id="cb23-3"><a href="" aria-label="3"></a>        X</span>
+<span id="cb23-4"><a href="" aria-label="4"></a>        |</span>
+<span id="cb23-5"><a href="" aria-label="5"></a>Lap time ↓ ?</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>High reward does <strong>not necessarily mean</strong> fast lap time.</p>
+<p>You should track:</p>
+<ul>
+<li>lap completion;</li>
+<li>off-track frequency;</li>
+<li>lap time;</li>
+<li>consistency;</li>
+<li>steering smoothness;</li>
+<li>progress;</li>
+<li>evaluation across several runs.</li>
+</ul>
+</section>
+<section id="winning-strategy-9-sim-to-real" class="slide level2 scrollable">
+<h2>Winning Strategy #9 — Sim-to-real</h2>
+<p>Now let’s bring in our actual physical Grand Prix.</p>
+<iframe data-external="1" src="https://www.youtube.com/embed/UBT4oJH4qlI?si=4VwIfavgnsbplauy" width="560" height="315" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe data-external="1" src="https://www.youtube.com/embed/HBUGinvw-og?si=2ECQkI-cTTHtLfyo" width="560" height="315" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p>Simulation may have:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb24-1"><a href="" aria-label="1"></a>perfect lighting</span>
+<span id="cb24-2"><a href="" aria-label="2"></a>perfect track</span>
+<span id="cb24-3"><a href="" aria-label="3"></a>perfect camera</span>
+<span id="cb24-4"><a href="" aria-label="4"></a>predictable friction</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Physical race:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb25-1"><a href="" aria-label="1"></a>lighting variation</span>
+<span id="cb25-2"><a href="" aria-label="2"></a>tape imperfections</span>
+<span id="cb25-3"><a href="" aria-label="3"></a>camera exposure</span>
+<span id="cb25-4"><a href="" aria-label="4"></a>battery state</span>
+<span id="cb25-5"><a href="" aria-label="5"></a>wheel alignment</span>
+<span id="cb25-6"><a href="" aria-label="6"></a>surface friction</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>So the best virtual model is not automatically the best physical model.</p>
+<p>Introduce:</p>
+<p><span class="math display">\[
+\boxed{\text{Robustness &gt; simulator perfection}}
+\]</span></p>
+</section>
+<section id="a-candidate-advanced-reward-structure" class="slide level2 scrollable">
+<h2>A candidate advanced reward structure</h2>
+<p>A “winning reward” function needs to be a decomposition:</p>
+<p><span class="math display">\[
+R =
+R_{\text{track}}
+\times
+R_{\text{direction}}
+\times
+R_{\text{speed}}
+\times
+R_{\text{smoothness}}
++
+R_{\text{progress}}
+\]</span></p>
+<p>Conceptual code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="" aria-label="1"></a>reward <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb26-2"><a href="" aria-label="2"></a></span>
+<span id="cb26-3"><a href="" aria-label="3"></a><span class="cf">if</span> <span class="kw">not</span> all_wheels_on_track:</span>
+<span id="cb26-4"><a href="" aria-label="4"></a>    <span class="cf">return</span> <span class="fl">1e-3</span></span>
+<span id="cb26-5"><a href="" aria-label="5"></a></span>
+<span id="cb26-6"><a href="" aria-label="6"></a>reward <span class="op">*=</span> direction_score</span>
+<span id="cb26-7"><a href="" aria-label="7"></a>reward <span class="op">*=</span> speed_score</span>
+<span id="cb26-8"><a href="" aria-label="8"></a>reward <span class="op">*=</span> smoothness_score</span>
+<span id="cb26-9"><a href="" aria-label="9"></a></span>
+<span id="cb26-10"><a href="" aria-label="10"></a>reward <span class="op">+=</span> progress_bonus</span>
+<span id="cb26-11"><a href="" aria-label="11"></a></span>
+<span id="cb26-12"><a href="" aria-label="12"></a><span class="cf">return</span> <span class="bu">float</span>(reward)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p>Every term represents a hypothesis about what good racing means.</p>
+</blockquote>
+<p>That is the scientific mindset I would want you to possess</p>
+</section>
+<section id="the-grand-prix-development-loop" class="slide level2 scrollable">
+<h2>The Grand Prix development loop</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb27-1"><a href="" aria-label="1"></a>       Observe track</span>
+<span id="cb27-2"><a href="" aria-label="2"></a>            ↓</span>
+<span id="cb27-3"><a href="" aria-label="3"></a>     Form hypothesis</span>
+<span id="cb27-4"><a href="" aria-label="4"></a>            ↓</span>
+<span id="cb27-5"><a href="" aria-label="5"></a>     Modify ONE thing</span>
+<span id="cb27-6"><a href="" aria-label="6"></a>            ↓</span>
+<span id="cb27-7"><a href="" aria-label="7"></a>          Train</span>
+<span id="cb27-8"><a href="" aria-label="8"></a>            ↓</span>
+<span id="cb27-9"><a href="" aria-label="9"></a>         Evaluate</span>
+<span id="cb27-10"><a href="" aria-label="10"></a>            ↓</span>
+<span id="cb27-11"><a href="" aria-label="11"></a>   Analyze failures</span>
+<span id="cb27-12"><a href="" aria-label="12"></a>            ↓</span>
+<span id="cb27-13"><a href="" aria-label="13"></a>     Compare baseline</span>
+<span id="cb27-14"><a href="" aria-label="14"></a>            ↓</span>
+<span id="cb27-15"><a href="" aria-label="15"></a>          Repeat</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>And contrast it against:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb28-1"><a href="" aria-label="1"></a>Change reward</span>
+<span id="cb28-2"><a href="" aria-label="2"></a>Change action space</span>
+<span id="cb28-3"><a href="" aria-label="3"></a>Change learning rate</span>
+<span id="cb28-4"><a href="" aria-label="4"></a>Change entropy</span>
+<span id="cb28-5"><a href="" aria-label="5"></a>Train longer</span>
+<span id="cb28-6"><a href="" aria-label="6"></a>Hope</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The second approach makes it nearly impossible to know what actually improved the model.</p>
+</section>
+<section id="think-about-the-challenges" class="slide level2 scrollable">
+<h2>Think about the challenges</h2>
+<h3 id="model-a-safe-driver">Model A — Safe Driver</h3>
+<p>Goal:</p>
+<blockquote>
+<p>Complete laps reliably.</p>
+</blockquote>
+<h3 id="model-b-fast-driver">Model B — Fast Driver</h3>
+<p>Modify one or two ideas to reduce lap time.</p>
+<h3 id="model-c-race-driver">Model C — Race Driver</h3>
+<p>Optimize:</p>
+<p><span class="math display">\[
+\text{speed + reliability}
+\]</span></p>
+<p>Here is a draft tiny experiment table to log your findings:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Reward idea</th>
+<th>Action space</th>
+<th style="text-align: right;">Completion</th>
+<th style="text-align: right;">Avg. lap</th>
+<th style="text-align: right;">Best lap</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>center/safety</td>
+<td>baseline</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>progress/speed</td>
+<td>baseline</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>racing line</td>
+<td>tuned</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>And answer:</p>
+<blockquote>
+<p><strong>What did your agent teach you about your reward function?</strong></p>
+</blockquote>
+</section>
+<section id="summary" class="slide level2 scrollable">
+<h2>Summary</h2>
+<p><span class="math display">\[
+\boxed{\text{Actor–Critic}}
+\]</span></p>
+<p>“Learn a policy and value function together.”</p>
+<p>↓</p>
+<p><span class="math display">\[
+\boxed{\text{PPO}}
+\]</span></p>
+<p>“Improve the policy, but control how much it changes.”</p>
+<p>↓</p>
+<p><span class="math display">\[
+\boxed{\text{Grand Prix Anatomy}}
+\]</span></p>
+<p>“Where are Actor, Critic, PPO, observation, action and reward inside the race car?”</p>
+<p>↓</p>
+<p><span class="math display">\[
+\boxed{\text{Winning Strategies}}
+\]</span></p>
+<p>“How do we engineer the entire RL system for performance?”</p>
+</section>
+<section id="a-note" class="slide level2 scrollable">
+<h2>A note</h2>
+<ul>
+<li>The DeepRacer also supports Soft Actor-Critic (SAC) algorithm for the training, which is currently described as off-policy versus PPO’s on-policy learning.
+<ul>
+<li>We will discuss this later in the course.</li>
+</ul></li>
+</ul>
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="Actor-Critic-to-PPO_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    <script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+    (function() {
+      let previousOnload = window.onload;
+      window.onload = () => {
+        if (previousOnload) {
+          previousOnload();
+        }
+        lightboxQuarto.on('slide_before_load', (data) => {
+          const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+          const href = trigger.getAttribute('href');
+          if (href !== null) {
+            const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+            if (imgEl !== null) {
+              const srcAttr = imgEl.getAttribute("src");
+              if (srcAttr && srcAttr.startsWith("data:")) {
+                slideConfig.href = srcAttr;
+              }
+            }
+          } 
+        });
+      
+        lightboxQuarto.on('slide_after_load', (data) => {
+          const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(slideNode);
+          }
+        });
+      
+      };
+      
+    })();
+              </script>
+    
+
+</body></html>

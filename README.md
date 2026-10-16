@@ -38,4 +38,5 @@ Welcome to another semester with Reinforcement Learning!
 
 
 ## Week 9 (10/12 -- 10/16)
-* 
+* From Actor-Critic to PPO and to Racing [lecture-slide](week-09/Actor-Critic-to-PPO.html)
+
