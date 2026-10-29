@@ -1,0 +1,1595 @@
+---
+title: "Learning by Watching: Imitation Learning and Behavior Cloning and DAgger"
+author: "Ashis Kumer Biswas, Ph.D."
+format:
+  revealjs: 
+    theme: default
+    chalkboard: true
+lightbox: true
+---
+
+## Main theme today is --
+> We know how to train an agent through trial and error. But what if experimenting is expensive, unsafe, or prohibited? Can we still learn a good policy?
+
+> What if we could train an intelligent agent simply by showing it examples of good decisions, without having it discover those decisions through trial and error?
+
+## Few Examples of Learning {.scrollable}
+
+### Example 1 — Robot learns to pick up objects
+
+<video autoplay="true" loop="true" controls="true" muted="true" width="100%">
+<source src="videos/robotic-arm-tipsy-at-LV.mov">
+</video>
+
+
+A human demonstrates how to position a robot gripper, close it, lift an object, and place it in a box.
+
+The robot records observations and corresponding expert movements.
+
+Instead of independently discovering grasping through thousands of failed attempts, it learns to reproduce those movements.
+
+
+
+
+
+## Few Examples of Learning {.scrollable}
+### Example 2 — Autonomous driving
+<video autoplay="true" loop="true" controls="true" muted="true" width="100%">
+<source src="videos/waymo-with-co-governor.mov">
+</video>
+Video ref: [https://www.youtube.com/shorts/EDNp99m7CJY](https://www.youtube.com/shorts/EDNp99m7CJY)
+
+
+
+A driver steers around curves and adjusts speed to maintain safe distances.
+
+An AI system learns a relationship between road observations and steering or braking commands.
+
+However, what happens if the vehicle drifts into a position that the human demonstrations rarely contained?
+
+
+
+
+## Few Examples of Learning {.scrollable}
+### Example 3 — Intelligent thermostat
+
+![](figs/nest-thermostat.jpg)
+
+
+A building manager observes indoor temperature, outdoor temperature, and occupancy, then decides whether to heat the room.
+
+An AI controller learns the manager's decisions from historical examples.
+
+This is a good first coding problem because it reduces imitation learning to ordinary classification.
+
+
+
+
+## Few Examples of Learning {.scrollable}
+### Example 4 — Inventory replenishment
+![](figs/inventory-management.png)
+
+Photo courtesy: [https://www.shipbob.com/blog/inventory-replenishment/](https://www.shipbob.com/blog/inventory-replenishment/)
+
+A store manager decides whether to reorder products based on current stock, recent sales, and expected demand.
+
+An imitation-learning agent predicts the manager's ordering decisions.
+
+This raises a particularly useful question: is copying the manager always equivalent to maximizing profit?
+
+## Common structure of these examples {.scrollable}
+
+![](figs/common-structure.png)
+
+
+## From imitation to supervised learning {.scrollable}
+
+Recall the conventional reinforcement learning formulation:
+
+$$
+ \pi_\theta(a\mid s)
+$$
+
+The policy decides which action to take in state $s$.
+
+In PPO, we learned this policy through rewards, advantages, and policy-gradient optimization.
+
+But suppose an expert already knows what action to take.
+
+We can collect:
+
+$$
+ D_E=\{(s_1,a_1),(s_2,a_2),\ldots,(s_N,a_N)\}
+$$
+
+where $a_i$ s the expert's action in state $s_i$.
+
+Our goal is now:
+
+$$
+\boxed{ \pi_\theta(s_i)\approx a_i }
+$$
+
+There is no need to calculate advantages or run PPO updates. We can train the policy as a supervised learning model.
+
+For discrete actions, the `Behavior Cloning` loss is:
+
+$$
+\boxed{ L_{BC}(\theta) = -\frac{1}{N}\sum_{i=1}^{N} \log\pi_\theta(a_i\mid s_i) }
+$$
+
+This is the same cross-entropy objective used in neural-network classification.
+
+
+
+## Concept Review {.scrollable}
+
+> Which statement correctly describes Behavior Cloning?
+
+A. The agent learns by randomly exploring until rewards improve.
+
+B. The agent calculates policy gradients from discounted returns.
+
+C. The agent predicts actions from expert-labeled states.
+
+D. The agent learns the transition model of the environment.
+
+:::{.incremental}
+* Correct. `C`: Behavior Cloning treats the expert's actions as supervised targets.
+:::
+
+## Demo 1 — Build an intelligent thermostat by imitation {.scrollable}
+
+An expert's rule:
+
+- If the room is substantially colder than the desired temperature, turn the heating on.
+- Otherwise, leave it off.
+
+```{python}
+#|echo: true
+#|eval: true
+
+import numpy as np
+import torch
+import torch.nn as nn
+
+rng = np.random.default_rng(42)
+torch.manual_seed(42)
+
+
+# Expert demonstrations
+current_temp = rng.uniform(40, 90, 1000)
+target_temp = rng.uniform(50, 80, 1000)
+
+X = np.column_stack( [ current_temp, target_temp] ).astype(np.float32)
+
+# 1 = heating on, 0 = heating off
+# If difference between current temp and target temp is more than 1 degree:
+#    turn the heat ON
+# Otherwise:
+#    leave the heat OFF
+y = []
+for i in range(len(X)):
+  if (current_temp[i] - target_temp[i]) <= 1.0:
+    y += [1]
+  else:
+    y += [0]
+
+print(X[:5])
+print(y[:5])
+
+```
+
+
+## Now, let's train a small classifier {.scrollable}
+
+```{python}
+#| echo: true
+#| eval: true
+
+model = nn.Sequential(
+    nn.Linear(2, 16),
+    nn.ReLU(),
+    nn.Linear(16, 2)
+)
+
+optimizer = torch.optim.Adam( model.parameters(), lr=0.01 )
+loss_fn = nn.CrossEntropyLoss()
+
+states = torch.tensor(X)
+actions = torch.tensor(y)
+
+num_epochs = 200
+
+for epoch in range(num_epochs):
+    logits = model(states)
+    loss = loss_fn(logits, actions)
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    print(f'epoch=[{epoch}]: loss = {loss.item():.2f}')
+
+print(f'Done training the classifier')
+
+
+print(f'Now test the classifier')
+
+# Let the learned controller make a decision
+test_state = torch.tensor([[60.0, 63.0]])
+
+print(f'Given test sample: {test_state}')
+
+with torch.no_grad():
+    action = model(test_state).argmax(dim=1).item()
+
+print(f'Classifier says: ...',sep='')
+print("Heating ON" if action == 1 else "Heating OFF")
+
+print(f'------------------------------------')
+test_state = torch.tensor([[75.0, 67.0]])
+
+# test with another test_state
+print(f'Another test sample: {test_state}')
+
+with torch.no_grad():
+    action = model(test_state).argmax(dim=1).item()
+
+print(f'Classifier says: ...',sep='')
+print("Heating ON" if action == 1 else "Heating OFF")
+```
+
+
+## A point to note {.scrollable}
+
+> The network is not explicitly given the thermostat rule. It learns to approximate the rule from the examples.
+
+> For this particular state, the expert would turn heating on; the model should learn that decision after sufficient training. 
+> You should test several states rather than assuming every prediction will be correct.
+
+* Few questions to ponder:
+
+### Questions
+
+1. Where is the expert policy defined?
+
+:::{.fragment}
+```python
+if (current_temp[i] - target_temp[i]) <= 1.0:
+    y += [1]
+else:
+    y += [0]
+```
+:::
+
+:::{.fragment}
+It means:
+
+- If the current temperature is more than 1°F below the desired temperature, turn the heater ON (1).
+- Otherwise, keep the heater OFF (0).
+
+For example:
+
+| Current temperature | Target temperature | Expert action |
+| ------------------- | ------------------ | ------------- |
+| 65°F                | 69°F               | ON (1)        |
+| 65°F                | 67°F               | ON (1)        |
+| 70°F              | 70.5°F               | OFF (0)       |
+| 75°F                | 70°F               | OFF (0)       |
+
+The expert isn't a trained neural network. It is a simple, manually designed rule-based controller.
+
+**Note**: An expert in imitation learning does not have to be a human. It can be an existing algorithm, a rule-based controller, or a previously trained RL agent.
+:::
+
+
+2. Which part of the code represents demonstrations?
+
+
+:::{.fragment}
+The demonstrations are the pairs of input states and corresponding expert actions:
+
+```
+X = np.column_stack( [ current_temp, target_temp] ).astype(np.float32)
+
+y = []
+for i in range(len(X)):
+  if (current_temp[i] - target_temp[i]) <= 1.0:
+    y += [1]
+  else:
+    y += [0]
+```
+
+Here:
+
+- `X` contains the observations (current and target temperatures).
+- `y` contains the actions chosen by the expert.
+
+Mathematically:
+
+$$ 
+D_E=\{(s_1,a_1^E),(s_2,a_2^E),\ldots,(s_N,a_N^E)\}
+$$
+
+Each example tells the learner: When the expert observed this state, it chose this action.
+
+
+:::
+
+3. Why are we using `CrossEntropyLoss()` instead of the actor loss from PPO?
+
+
+:::{.fragment}
+Because Behavior Cloning is a supervised learning problem, whereas PPO is a reinforcement learning algorithm.
+
+In Behavior Cloning, we already know the desired action from the expert. The neural network simply learns to predict it.
+
+$$ 
+L_{\text{BC}}=-\frac{1}{N}\sum_i\log\pi_\theta(a_i^E\mid s_i)
+$$
+
+PyTorch's `CrossEntropyLoss()` implements this objective for discrete actions.
+
+In PPO, the agent does not receive expert action labels. Instead, it uses rewards and estimated advantages to determine which actions should become more or less probable.
+
+The PPO clipped surrogate objective is:
+
+$$ 
+L_{\text{PPO}}= -\mathbb{E}\left[ \min\left( r_t(\theta)A_t,\operatorname{clip}(r_t(\theta),1-\epsilon,1+\epsilon)A_t \right) \right]
+$$
+
+| Behavior Cloning                      | PPO                                      |
+| ------------------------------------- | ---------------------------------------- |
+| Learns from expert action labels      | Learns from rewards and advantages       |
+| Uses cross-entropy                    | Uses a clipped policy-gradient objective |
+| Attempts to imitate decisions         | Attempts to maximize expected return     |
+| Does not require rewards for training | Requires reward-based learning signals   |
+
+**Note**: The policy network architecture can be nearly identical. The principal difference is where the learning signal comes from.
+
+:::
+
+4. Can this trained controller adapt intelligently to changing electricity prices or future weather?
+
+:::{.fragment}
+No, not with its current inputs and training objective.
+
+Our thermostat only observes:
+
+$$ 
+s=[T_{\text{current}},T_{\text{target}}]
+$$
+
+It does not observe electricity prices, weather forecasts, occupancy, or expected future heating demand.
+
+Therefore, it cannot deliberately choose to heat during cheaper electricity periods or anticipate a future temperature drop.
+
+For example, two situations might have identical temperatures but very different electricity prices:
+
+| Current | Target | Electricity price | BC decision |
+| ------- | ------ | ----------------- | ----------- |
+| 68°F    | 70°F   | $0.10/kWh         | ON          |
+| 68°F    | 70°F   | $0.50/kWh         | ON          |
+
+Both inputs look identical to the trained controller, so its prediction will be identical.
+
+To account for prices and weather, we would need to expand the state:
+
+$$ 
+s_t=[ T_{\text{indoor}}, T_{\text{target}}, P_{\text{electricity}}, T_{\text{outdoor}}, \text{weather forecast} ]
+$$
+
+Even then, adding inputs alone is insufficient. The training demonstrations must contain meaningful decisions based on that information, or we must use a different learning objective.
+
+This is one reason sequential optimization with RL can be more useful than simple Behavior Cloning.
+:::
+
+
+5. What labels trained the thermostat? 
+
+:::{.fragment}
+The labels were binary action values:
+
+$$ 
+y_i\in\{0,1\}
+$$
+
+where:
+
+- `0` means heater OFF.
+- `1` means heater ON.
+
+These labels were passed into the cross-entropy training function:
+
+```python
+logits = model(states)
+loss = loss_fn(logits, actions)
+```
+
+The network produces two logits, one for each possible action. Cross-entropy encourages the network to assign higher probability to the expert's selected action.
+
+For example, if the expert label is `1`, a network producing:
+
+$$ 
+\pi_\theta(\text{OFF}\mid s)=0.1,\qquad \pi_\theta(\text{ON}\mid s)=0.9
+$$
+
+receives a relatively small loss:
+
+$$ 
+-\log(0.9)\approx0.105.
+$$
+
+If it predicts only 10% probability for ON, the loss becomes:
+
+$$ 
+-\log(0.1)\approx2.303.
+$$
+
+Thus, incorrect or low-confidence predictions of the expert's chosen action are penalized more heavily.
+
+
+:::
+
+
+6. Where did the labels come from? 
+
+
+:::{.fragment}
+They were generated automatically by the expert rule:
+
+```python
+if (current_temp[i] - target_temp[i]) <= 1.0:
+    y += [1]
+else:
+    y += [0]
+```
+
+In this particular example, we generated synthetic temperature observations:
+
+```
+current_temp = rng.uniform(40, 90, 1000)
+target_temp = rng.uniform(50, 80, 1000)
+```
+
+Then applied the expert rule to produce the correct action for each observation.
+
+This process is sometimes called programmatic labeling because the labels come from a predefined function rather than human annotation.
+
+An important distinction: our thermostat demonstrations are independently generated state-action pairs, not trajectories from a simulated heating system. That is sufficient for demonstrating simple Behavior Cloning, but not enough to evaluate long-term heating performance.
+
+
+:::
+
+7. Would the thermostat necessarily minimize total electricity cost over a month? 
+
+
+:::{.fragment}
+No.
+
+The thermostat was trained to imitate a temperature-based rule, not to minimize electricity expenditure.
+
+Its loss function is:
+
+$$ 
+L_{\text{BC}}=-\log\pi_\theta(a^E\mid s)
+$$
+
+There is no electricity cost, energy consumption, or cumulative reward in this objective.
+
+A controller achieving 100% expert-action accuracy could still be expensive to operate if the expert itself is not cost-efficient.
+
+To optimize electricity consumption over time, we could formulate the thermostat as an MDP with a reward such as:
+
+$$ 
+r_t= -\underbrace{P_tE_t}_{\text{electricity cost}} -\lambda\underbrace{|T_{\text{indoor},t}-T_{\text{target},t}|}_{\text{comfort penalty}}
+$$
+
+where $P_t$ is electricity price and $E_t$ is energy consumed.
+
+An RL controller would then try to maximize:
+
+$$ 
+\mathbb E\left[ \sum_{t=0}^{T}\gamma^t r_t \right]
+$$
+
+For actual monthly bill minimization over a finite horizon, we could instead optimize the undiscounted total cost with appropriate comfort constraints.
+
+This introduces the distinction between imitating individual decisions and optimizing long-term consequences.
+:::
+
+
+### So, the imitation thermostat ...
+
+
+* What did our thermostat really learn?
+    - It learned to approximate the expert's ON/OFF temperature rule.
+    - It did not learn how to optimize long-term electricity cost and comfort.
+
+
+> Suppose the expert thermostat makes inefficient decisions. If our Behavior Cloning agent learns to imitate the expert perfectly, have we created a better controller?
+
+:::{.incremental}
+* Not necessarily. We have created a good imitator, not necessarily a good decision-maker.
+* This distinction is precisely what motivates Lecture 10B: Offline Reinforcement Learning, where the agent learns from recorded actions and their consequences, rather than merely copying the actions.
+:::
+
+
+
+## Demo 2 — Can we teach CartPole by imitation? {.scrollable}
+
+![](figs/cartpole.jpg)
+
+**Environment at Gymnasium**: `CartPole-v1`
+
+**Observation space**: 
+$$
+s=[x,\dot{x},\theta,\dot{\theta}]
+$$
+where, $x$ is Cart Position,
+
+$x'$ is Cart Velocity,
+
+$\theta$ is Pole angle,
+
+$\dot{\theta}$ is Pole angular velocity.
+
+**Action space**: push left (`0`) or right (`1`).
+
+**Goal**: balance the pole for as many as 500 steps.
+
+
+## Step 1 — Create a simple expert {.scrollable}
+
+![](figs/cartpole.jpg)
+
+> The teacher below is deliberately simple:
+$$
+a_E=\mathbf{1}(\theta+0.2\dot{\theta}>0)
+$$
+
+It reacts to how far the pole leans and how quickly it rotates. It is **not a learned RL agent**. A previously trained PPO policy could instead provide demonstrations using exactly the same data-collection function.
+
+We don't even need to train a PPO agent to make this demonstration work. We can start with a straightforward scripted controller:
+
+```{python}
+#| echo: true
+#| eval: true
+
+def expert_action(state):
+    x, x_velocity, theta, theta_velocity = state
+
+    if theta + 0.2 * theta_velocity > 0:
+      action = 1 #Push right
+    else:
+      action = 0 #Push left
+
+    return action
+
+```
+
+This controller considers the pole's angle and angular velocity. It pushes in a direction intended to counteract the falling pole.
+
+It's a simple heuristic, as is not necessarily optimal, and not guaranteed to work from every state.
+
+> Why is this rule able to control a dynamic system even though it knows nothing about Bellman equations, rewards, or PPO?
+
+
+
+## Step 2 — Collect demonstrations {.scrollable}
+
+* Collect `(state, expert_action)` pairs from a few **complete expert episodes**. 
+* Also keep separate expert episodes for an honest held-out action-accuracy check. 
+    * In sequential data, don't split randomly across adjacent timesteps if you can split whole trajectories.
+
+```{python}
+#| echo: true
+#| eval: true
+import gymnasium as gym
+import numpy as np
+
+env = gym.make("CartPole-v1")
+
+states = []
+actions = []
+num_episodes = 100
+
+for episode in range(num_episodes):
+    state, _ = env.reset(seed=42 + episode)
+
+    while True:
+        action = expert_action(state)
+
+        states.append(state.copy())
+        actions.append(action)
+
+        state, reward, terminated, truncated, _ = env.step(action)
+
+        if terminated or truncated:
+            break
+
+env.close()
+
+X = np.array(states, dtype=np.float32)
+y = np.array(actions, dtype=np.int64)
+
+print(X.shape, y.shape)
+
+print(X[:5,:])
+print(y[:5])
+```
+
+
+```{python}
+#| echo: true
+#| eval: true
+import matplotlib.pyplot as plt
+
+def collect_expert_episodes(env, n_episodes=2, seed_start=100):
+    episode_states, episode_actions = [], []
+
+    for episode in range(n_episodes):
+        obs, _ = env.reset(seed=seed_start + episode)
+        states, actions = [], []
+        while True:
+            a = expert_action(obs)
+            states.append(obs.copy())
+            actions.append(a)
+            obs, reward, terminated, truncated, _ = env.step(a)
+            if terminated or truncated:
+                break
+        episode_states.append(np.asarray(states, dtype=np.float32))
+        episode_actions.append(np.asarray(actions, dtype=np.int64))
+    env.close()
+    return episode_states, episode_actions
+
+
+
+#Collect training set
+env = gym.make("CartPole-v1")
+train_episodes_s, train_episodes_a = collect_expert_episodes(env, 2, seed_start=100)
+
+#Collect test set
+env = gym.make("CartPole-v1")
+test_episodes_s, test_episodes_a = collect_expert_episodes(env, 4, seed_start=800)
+
+X_train = np.concatenate(train_episodes_s)
+y_train = np.concatenate(train_episodes_a)
+X_test = np.concatenate(test_episodes_s)
+y_test = np.concatenate(test_episodes_a)
+
+print('Training demonstrations:', X_train.shape, y_train.shape)
+print('Held-out expert demonstrations:', X_test.shape, y_test.shape)
+print('Fraction of expert right-push actions:', y_train.mean().round(3))
+
+plt.figure(figsize=(6.6, 4.4))
+plt.scatter(X_train[:, 2], X_train[:, 3], c=y_train, s=4, alpha=.32, cmap='coolwarm')
+plt.xlabel('Pole angle (rad)'); plt.ylabel('Pole angular velocity (rad/s)')
+plt.title('Expert choices in demonstrated states (color = action)')
+plt.tight_layout()
+plt.show()
+```
+
+### Questions
+
+1. What is the observation? What is the target label?
+2. Why is the test split by **episode** instead of randomly shuffling neighboring timesteps?
+3. What kinds of bad states will be missing when the expert consistently balances the pole?
+4. Where is the learning?
+
+:::{.incremental}
+It hasn't happened yet!
+:::
+
+We simply collected examples of what an expert would do.
+
+Our dataset contains:
+
+| State                                  | Expert action    |
+| -------------------------------------- | ---------------- |
+| Pole leaning right and rotating right  | Push right       |
+| Pole leaning left and rotating left    | Push left        |
+| Pole nearly upright but rotating right | Often push right |
+| Pole nearly upright but rotating left  | Often push left  |
+
+The exact decision also depends on the relative angle and angular velocity, so these rows describe tendencies rather than complete decision rules.
+
+
+## Step 3 — Train a cloned policy -- Behavior Cloning {.scrollable}
+
+This is the same `state → policy logits → action` architecture students saw for PPO, but its loss is now simple cross-entropy:
+
+$$
+L_{BC}=-\frac{1}{N}\sum_i\log\pi_{\theta}(a_i^E\mid s_i).
+$$
+
+Unlike PPO, **no rewards, returns, values, or advantages appear in this training loop.**
+
+
+
+The key training logic is short:
+
+```{python}
+#| echo: true
+#| eval: true
+
+import torch
+import torch.nn as nn
+
+torch.manual_seed(42)
+
+policy = nn.Sequential(
+    nn.Linear(4, 32),
+    nn.Tanh(),
+    nn.Linear(32, 32),
+    nn.Tanh(),
+    nn.Linear(32, 2)
+)
+
+optimizer = torch.optim.Adam(policy.parameters(), lr=0.003)
+
+#Now, these are the stored expert data samples
+X_tensor = torch.from_numpy(X) 
+y_tensor = torch.from_numpy(y)
+
+num_epochs = 100
+for epoch in range(num_epochs):
+    #forward propagate
+    logits = policy(X_tensor)
+
+    #compute loss
+    loss = nn.functional.cross_entropy(logits, y_tensor)
+
+    #backprop and update weights of the policy network
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+```
+
+### Let's make the Behavior Cloning Policy Network Modular
+
+```{python}
+#| echo: true
+#| eval: true
+
+STATE_SCALE = torch.tensor([2.4, 3.0, 0.21, 3.0], dtype=torch.float32)
+
+
+
+class ClonedPolicy(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(4, 32), 
+            nn.Tanh(),
+            nn.Linear(32, 32), 
+            nn.Tanh(),
+            nn.Linear(32, 2)
+        )
+
+    def forward(self, states):
+        return self.net(states / STATE_SCALE)
+
+def train_bc(states, actions, epochs=60, learning_rate=3e-3):
+    policy = ClonedPolicy()
+    optimizer = torch.optim.Adam(policy.parameters(), lr=learning_rate)
+
+    X = torch.as_tensor(states, dtype=torch.float32)
+    y = torch.as_tensor(actions, dtype=torch.long)
+    losses = []
+
+    for epoch in range(epochs):
+        logits = policy(X)
+        loss = nn.functional.cross_entropy(logits, y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        losses.append(float(loss.item()))
+    return policy, losses
+
+bc_policy, bc_losses = train_bc(X_train, y_train, epochs=60)
+
+with torch.inference_mode():
+    logits = bc_policy(torch.tensor(X_test))
+    holdout_accuracy = (logits.argmax(1).numpy() == y_test).mean()
+
+print(f'Held-out expert action accuracy: {holdout_accuracy:.1%}')
+
+plt.figure(figsize=(6, 3))
+plt.plot(bc_losses) 
+plt.xlabel('Epoch') 
+plt.ylabel('Cross-entropy loss') 
+plt.title('Behavior Cloning: supervised training') 
+plt.tight_layout() 
+plt.show()
+
+```
+
+> **Important:** The action accuracy above is measured on **expert-generated** states. It does not tell us how well the cloned policy performs on states it causes itself to visit.
+
+> To test the actual task, we must **roll the policy out in the simulator** and measure episode return.
+
+
+### Compare with PPO
+Compare and contrast these two objectives side by side:
+
+| **PPO**                                        | **Behavior Cloning**                     |
+| ------------------------------------------ | ------------------------------------ |
+| Uses collected rewards and advantages      | Uses expert action labels            |
+| Policy-gradient optimization               | Supervised classification            |
+| Learns through new experience              | Learns from demonstrations           |
+| Needs environment interaction for training | Can train from stored demonstrations |
+
+The policy architecture can be almost identical. It is the learning signal that changes.
+
+## Step 4 — Test the learned agent {.scrollable}
+
+```{python}
+#| echo: true
+#| eval: true
+
+def learned_action(state):
+    state = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+
+    with torch.no_grad():
+        logits = policy(state)
+        return logits.argmax(dim=1).item()
+```
+
+Now run several evaluation episodes and compare average return with the scripted expert.
+
+
+Can you guess?
+
+> Will the Behavior Cloning agent perform exactly like the expert? If not, why not?
+
+
+## Closed-loop performance: Random vs. Expert vs. Cloned policy {.scrollable}
+
+An action classifier can have reasonable accuracy and still be an unreliable controller. 
+
+We measure the **number of steps before failure or the 500-step time limit**. This is equivalent to episode return for the default CartPole reward of +1 per step.
+
+
+```{python}
+#| echo: true
+#| eval: true
+
+def cloned_action(policy, obs):
+    policy.eval()
+    with torch.inference_mode():
+        x = torch.as_tensor(obs, dtype=torch.float32).unsqueeze(0)
+        return int(policy(x).argmax(dim=1).item())
+
+def evaluate_controller(env, controller, n_episodes=12, first_seed=2000,
+                        reset_bounds=None):
+    returns = []
+    for i in range(n_episodes):
+        options = None if reset_bounds is None else {
+            'low': -float(reset_bounds), 'high': float(reset_bounds)}
+        obs, _ = env.reset(seed=first_seed + i, options=options)
+        total = 0.
+        while True:
+            a = int(controller(obs))
+            obs, reward, terminated, truncated, _ = env.step(a)
+            total += float(reward)
+            if terminated or truncated:
+                break
+        returns.append(total)
+    env.close()
+    return np.asarray(returns)
+
+random_rng = np.random.default_rng(77)
+controllers = {
+    'Random': lambda obs: int(random_rng.integers(2)),
+    'Scripted expert': expert_action,
+    'Behavior cloning': lambda obs: cloned_action(bc_policy, obs),
+}
+for name, fn in controllers.items():
+    env = gym.make("CartPole-v1")
+    scores = evaluate_controller(env, fn)
+    print(f'{name:17s} average {scores.mean():6.1f}, '
+          f'min {scores.min():5.0f}, max {scores.max():5.0f}')
+
+```
+
+
+## Distribution shift: is the learner robust? {.scrollable}
+
+> Can the behavior-cloned agent continue making good decisions when the environment starts in conditions different from those represented in its training demonstrations?
+
+
+> an agent can learn to imitate an expert under familiar conditions but struggle considerably when it encounters unfamiliar conditions.
+
+The expert demonstrations began very close to upright (`±0.05` in each observation dimension). 
+
+Now start from a **wider range of initial conditions** (`±0.15`). 
+
+In Gymnasium, `reset(options={"low":..., "high":...})` changes the initial-state bounds.
+
+```{python}
+#| echo: true
+#| eval: true
+env = gym.make("CartPole-v1")
+before = evaluate_controller(env, lambda o: cloned_action(bc_policy, o),
+                             n_episodes=12, reset_bounds=0.15)
+expert_shift = evaluate_controller(env, expert_action, n_episodes=12,
+                                   reset_bounds=0.15)
+print('BC under shifted starts:', round(before.mean(), 1),
+      'steps; expert:', round(expert_shift.mean(), 1), 'steps')
+print('BC shifted episode scores:', before.astype(int).tolist())
+```
+
+The difference is substantial:
+
+- The expert keeps the pole balanced for an average of 443.4 steps.
+- The cloned agent manages only 172.8 steps.
+- The cloned agent achieves approximately 39% of the expert's episode duration.
+- All 12 recorded BC episodes ended before the 500-step limit.
+
+Notice that BC sometimes achieves over 250 or even 350 steps. It has learned a useful control policy, but its behavior is inconsistent across these more challenging initial conditions.
+
+> **The main finding**: The expert remains effective under the shifted initialization distribution, while the cloned agent performs considerably worse.
+
+### Why small errors compound
+
+> This phenomenon is called covariate shift, and in sequential decision-making it can cause compounding errors.
+
+Behavior Cloning trains on states sampled from the expert distribution, $d^{\pi_E}(s)$. But the deployed policy generates states from its own distribution, $d^{\pi_{BC}}(s)$.
+
+One wrong action → unfamiliar state → more wrong actions → task failure.
+
+**Think back to the Grand Prix**: even if a steering model agrees with the expert on most on-track frames, can it recover once it drifts toward an unfamiliar edge of the track?
+
+
+## DAgger: Dataset Aggregation {.scrollable}
+
+Behavior Cloning asks:
+
+> What would the expert do in the states contained in my dataset?
+
+DAgger asks:
+
+> What would the expert do in the states that my learned agent actually encounters, including after its own mistakes?
+
+By collecting expert labels on learner-visited states, DAgger can help the policy learn corrective actions that may be underrepresented in the original demonstrations.
+
+
+Here below are the DAgger steps:
+
+1. Run the **learner** to collect the states that **it** visits.
+2. Ask the expert to label those learner-visited states.
+3. Add those newly labeled examples to the demonstration dataset.
+4. Retrain the policy and repeat.
+
+We use a fixed scripted expert that can label any simulated CartPole state. A real-world implementation might require costly human labels and safety review.
+
+**Crucial:** DAgger requires interaction to visit learner-induced states and is **not** the fixed-dataset offline RL setting.
+
+```{python}
+#| echo: true
+#| eval: true
+
+def collect_dagger_states(policy, n_episodes=3, seed_start=3000):
+    env = gym.make("CartPole-v1")
+    learner_states, teacher_labels = [], []
+    for episode in range(n_episodes):
+        obs, _ = env.reset(seed=seed_start + episode)
+        while True:
+            learner_states.append(obs.copy())
+            teacher_labels.append(expert_action(obs))  # query expert
+            action = cloned_action(policy, obs)          # execute learner
+            obs, reward, terminated, truncated, _ = env.step(action)
+            if terminated or truncated:
+                break
+    env.close()
+    return np.asarray(learner_states, dtype=np.float32), np.asarray(teacher_labels, dtype=np.int64)
+
+env = gym.make("CartPole-v1")
+
+aggregated_X, aggregated_y = X_train.copy(), y_train.copy()
+dag_policy = bc_policy
+dag_results = [evaluate_controller(env, lambda s: cloned_action(dag_policy, s),
+                                   n_episodes=12, reset_bounds=0.15).mean()]
+for iteration in range(5):
+    new_states, new_labels = collect_dagger_states(
+        dag_policy, n_episodes=3, seed_start=3000 + iteration * 20)
+    aggregated_X = np.concatenate([aggregated_X, new_states])
+    aggregated_y = np.concatenate([aggregated_y, new_labels])
+    torch.manual_seed(100 + iteration)
+    dag_policy, _ = train_bc(aggregated_X, aggregated_y, epochs=80)
+    env = gym.make("CartPole-v1")
+    score = evaluate_controller(env, lambda s: cloned_action(dag_policy, s),
+                                n_episodes=12, reset_bounds=0.15).mean()
+    dag_results.append(score)
+    print(f'DAgger round {iteration+1}: dataset {len(aggregated_X)} '
+          f'examples; average shifted-start return {score:.1f}')
+
+plt.figure(figsize=(6.5, 3.5))
+plt.plot(range(len(dag_results)), dag_results, marker='o')
+plt.xticks(range(len(dag_results)), 
+            ['Initial BC', 'DAgger 1', 'DAgger 2', 'DAgger 3', 'DAgger 4', 'DAgger 5'])
+plt.ylim(0, 520)
+plt.ylabel('Mean return (12 shifted-start episodes)')
+plt.title('Does relabeling the learner’s own states help?')
+plt.tight_layout()
+plt.show()
+print('Expert shifted-start baseline:', expert_shift.mean().round(1))
+```
+
+## Interpretation and limitations {.scrollable}
+
+- DAgger frequently helps because the student learns the expert's preferred decisions **in the states caused by its own mistakes**.
+- Improvements are **not guaranteed**: the expert may be imperfect, learner rollouts might not visit the right states, and the neural network may need different tuning.
+- This is a **simplified DAgger classroom loop** with the learner always acting and the expert only labeling; original DAgger includes policies mixed with the expert for early data collection and theoretical guarantees under assumptions.
+- To fairly compare algorithms in a report, evaluate several random seeds and report variability, not just one plotted mean.
+
+## Understanding DAgger: From Behavior Cloning to Learning from Mistakes {.scrollable}
+
+> The most important thing to understand about DAgger (Dataset Aggregation) is that it does not introduce a new neural-network architecture or even a fundamentally different loss function.
+
+> DAgger still trains the policy using supervised learning, just like Behavior Cloning (BC). What changes is how we collect the training examples.
+
+* The crucial distinction is:
+
+- **Behavior Cloning**: The expert controls CartPole, and we learn from the states and actions generated by the expert.
+- **DAgger**: The learner controls CartPole, but the expert tells us what action should have been taken at every state visited by the learner.
+
+This seemingly small change is what makes DAgger interesting.
+
+## First, understand the difference visually {.scrollable}
+
+> Behavior Cloning — Expert generates the trajectory
+![](figs/BC.png)
+
+> DAgger — Learner generates the trajectory
+![](figs/DAgger-2.png)
+
+* In DAgger, the learner's action determines the next state, while the expert's action is used as the supervised training label.
+
+**Consider this hypothetical CartPole situation**:
+
+- The pole leans to the right, and the learner mistakenly pushes left. The next observation might be a state in which the pole is falling more rapidly.
+
+- In ordinary BC, the training dataset may contain very few states like this because the expert would have corrected the pole earlier.
+
+- DAgger allows the learner to encounter that difficult state and asks the expert how to recover.  The learner can subsequently train on this corrective example.
+
+
+## Let's Walk through `collect_dagger_states()` {.scrollable}
+
+```{python}
+#| echo: true
+#| eval: false
+
+def collect_dagger_states( policy, n_episodes=3, seed_start=3000 ):
+    # 1. Create the CartPole environment
+    env = gym.make("CartPole-v1")
+
+    # 2. Prepare two lists to collect examples
+    learner_states = []
+    teacher_labels = []
+
+    # 3. Run several episodes controlled by the learner
+    for episode in range(n_episodes):
+
+        obs, _ = env.reset( seed=seed_start + episode )
+
+        while True:
+
+            # 4. Save the state visited by the learner
+            learner_states.append(obs.copy())
+
+            # 5. Ask the expert what action SHOULD
+            #    be taken in this state
+            teacher_labels.append( expert_action(obs) )
+
+            # 6. Let the LEARNER actually choose
+            #    and execute the action
+            action = cloned_action(policy, obs)
+
+            obs, reward, terminated, truncated, _ = env.step(action)
+
+            # 7. Continue until the episode ends
+            if terminated or truncated:
+                break
+
+    env.close()
+
+    # 8. Return the states and expert labels
+    return (
+        np.asarray(learner_states, dtype=np.float32),
+        np.asarray(teacher_labels, dtype=np.int64)
+    )
+
+```
+
+Let's examine the essential steps.
+
+### Step A — Run the current learned policy
+
+```{python}
+#| echo: true
+#| eval: false
+action = cloned_action(policy, obs)
+```
+
+Here, `policy` is initially the Behavior Cloning policy you trained earlier.
+
+Suppose its current observation is:
+
+$$
+s_t=[0.02,0.06,0.04,-0.12]
+$$
+
+representing cart position, cart velocity, pole angle, and pole angular velocity.
+
+The learner predicts an action using its neural network.
+
+For illustration, suppose:
+
+$$
+\pi_{\text{learner}}(s_t)=0
+$$
+
+That means push left.
+
+### Step B — Ask the teacher for the correct action
+
+```{python}
+#| echo: true
+#| eval: false
+teacher_labels.append(expert_action(obs))
+```
+
+So far, the expert is defined as:
+
+```{python}
+#| echo: true
+#| eval: true
+def expert_action(obs):
+    return int( obs[2] + 0.2 * obs[3] > 0 )
+```
+
+For the example state:
+
+$$
+0.04+0.2(-0.12)=0.016>0
+$$
+
+Therefore:
+
+$$
+\pi_E(s_t)=1
+$$
+
+The expert would push right, while the learner wants to push left.
+
+This is exactly the kind of disagreement we want DAgger to learn from.
+
+### Step C — Store the expert's answer, but execute the learner's action
+
+This is the critical part:
+
+```{python}
+#| echo: true
+#| eval: false
+learner_states.append(obs.copy())
+
+teacher_labels.append(expert_action(obs))
+
+action = cloned_action(policy, obs)
+
+obs, reward, terminated, truncated, _ = env.step(action)
+```
+
+Observe the difference between the two actions.
+
+| Variable                     | Value in our example        | Purpose                             |
+| ---------------------------- | --------------------------- | ----------------------------------- |
+| `obs`                        | `[0.02, 0.06, 0.04, -0.12]` | State visited by learner            |
+| `expert_action(obs)`         | `1`                         | Training label                      |
+| `cloned_action(policy, obs)` | `0`                         | Action actually executed            |
+| `env.step(0)`                | Advances environment        | Produces next learner-visited state |
+
+Notice that we do not execute the expert action.
+
+Why?
+
+:::{.incremental}
+- Because we want to discover what states the learner reaches when it makes its own decisions, including mistakes.
+- If we executed the expert's action every time, we would mostly recreate expert-generated trajectories, just as in ordinary Behavior Cloning.
+- Also note that a disagreement does not necessarily prove the learner chose a disastrous action; it means the action differs from this particular scripted expert.
+:::
+
+### Step D — Continue collecting the learner's trajectory
+
+The environment returns:
+
+```{python}
+#| echo: true
+#| eval: false
+obs, reward, terminated, truncated, _ = env.step(action)
+```
+
+The new `obs` becomes the learner's next state.
+
+We repeat the same process:
+
+$$
+s_t \xrightarrow{a_t^{\text{learner}}} s_{t+1}
+$$
+
+At each $s_t$, we ask the expert for a label $a_t^E$.
+
+Eventually, our collected dataset looks like this:
+
+| Learner-visited state | Learner action (executed) | Expert label (stored) |
+| --------------------- | ------------------------- | --------------------- |
+| $s_1$             | 0                         | 0                     |
+| $s_2$             | 1                         | 1                     |
+| $s_3$             | 0                         | 1                     |
+| $s_4$             | 0                         | 1                     |
+| $s_5$             | 1                         | 1                     |
+
+Hypothetical demonstration of agreement and disagreement.
+
+The two returned arrays are:
+
+$$ 
+X_{\text{new}}=[s_1,s_2,s_3,s_4,s_5]
+$$
+
+$$
+y_{\text{new}}=[0,1,1,1,1]
+$$
+
+The learner's executed actions are not the target labels. They influence which states are encountered.
+
+We also do not use the returned rewards for training DAgger. The procedure remains supervised imitation learning.
+
+## How are the collected examples aggregated? {.scrollable}
+
+Now we arrive at the second part of DAgger training:
+
+```{python}
+#| echo: true
+#| eval: false
+aggregated_X = X_train.copy()
+aggregated_y = y_train.copy()
+dag_policy = bc_policy
+```
+
+Remember that `X_train` and `y_train` came from the original expert demonstrations.
+
+Initially:
+
+$$ 
+D_0=D_{\text{expert}}
+$$
+
+The first DAgger training round begins using the existing BC policy.
+
+```{python}
+#| echo: true
+#| eval: false
+new_states, new_labels = collect_dagger_states(dag_policy, n_episodes=3, seed_start=3000)
+```
+
+Suppose the original expert dataset contained 800 examples and these three learner-controlled episodes produced another 450 examples.
+
+We now have:
+
+$$ 
+D_{\text{expert}}=800\text{ examples}
+$$
+
+$$ 
+D_{\text{new}}=450\text{ examples}
+$$
+
+Then your code performs:
+
+```{python}
+#| echo: true
+#| eval: false
+aggregated_X = X_train.copy()
+aggregated_y = y_train.copy()
+
+dag_policy = bc_policy
+```
+
+This simply appends the newly collected examples to the existing training dataset.
+
+Example: How the training dataset grows
+
+![](figs/BC-vs-DAgger-rounds2.png)
+
+
+After the first round, the aggregated dataset is:
+
+$$
+D_1=D_0\cup D_{\text{learner},1}
+$$
+
+After the second round:
+
+$$ 
+D_2=D_1\cup D_{\text{learner},2}
+$$
+
+So, unlike basic BC, the training dataset is progressively extended with states encountered by the learner.
+
+> The key is that these are new states paired with expert actions, not copies of the learner's mistakes.
+
+
+## How does the aggregated dataset train the new policy? {.scrollable}
+
+This line is the answer:
+
+```{python}
+#| echo: true
+#| eval: false
+dag_policy, _ = train_bc( aggregated_X,  aggregated_y,  epochs=80)
+```
+
+> You are calling the same supervised training function that you used earlier for ordinary Behavior Cloning.
+
+Recall its important operations:
+
+```{python}
+#| echo: true
+#| eval: true
+def train_bc(states, actions, epochs=60, learning_rate=3e-3):
+
+    policy = ClonedPolicy()
+
+    optimizer = torch.optim.Adam( policy.parameters(), lr=learning_rate )
+
+    X = torch.as_tensor( states, dtype=torch.float32 )
+    y = torch.as_tensor( actions, dtype=torch.long )
+
+    for epoch in range(epochs):
+
+        logits = policy(X)
+
+        loss = nn.functional.cross_entropy( logits, y )
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    return policy, None
+```
+
+The training objective remains:
+
+$$ 
+\boxed{ L(\theta) = -\frac{1}{|D|} \sum_{(s,a^E)\in D} \log\pi_\theta(a^E\mid s) }
+$$
+
+What changes is the definition of $D$.
+
+For initial BC:
+
+$$ 
+L_{\text{BC}}= -\frac{1}{|D_0|} \sum_{(s,a^E)\in D_0} \log\pi_\theta(a^E\mid s)
+$$
+
+For DAgger after round 2:
+
+$$
+L_{\text{DAgger}}= -\frac{1}{|D_2|} \sum_{(s,a^E)\in D_2} \log\pi_\theta(a^E\mid s)
+$$
+
+Thus, DAgger is not learning a different reward function or using an Actor–Critic loss.
+
+It is using supervised learning on a more representative collection of states.
+
+
+### One implementation detail worth noticing
+
+Your original `train_bc()` creates a fresh neural network:
+
+```{python}
+#| echo: true
+#| eval: false
+policy = ClonedPolicy()
+```
+
+* Consequently, each DAgger round trains a new policy from scratch using the entire aggregated dataset. It does not continue updating the weights from the previous policy.
+    - This is perfectly reasonable. Another implementation could warm-start from the previous policy and fine-tune using the accumulated data.
+* Either way, the newly learned policy is the one used to collect states during the next DAgger round.
+
+
+## Walking through the complete DAgger loop {.scrollable}
+
+Here is a slightly more readable version of the DAgger loop we saw in earlier slide. It also included a diagnostic showing how frequently the learner disagrees with the expert on the states it visited.
+
+```{python}
+#| echo: true
+#| eval: true
+
+# Start with the original expert demonstrations
+aggregated_X = X_train.copy()
+aggregated_y = y_train.copy()
+
+# Start with the Behavior Cloning agent
+dag_policy = bc_policy
+
+for iteration in range(5):
+
+    print(f"\nDAgger round {iteration + 1}")
+
+    # STEP 1: Let current learner interact with CartPole
+    # Expert labels all learner-visited states.
+    new_states, new_labels = collect_dagger_states(
+        dag_policy,
+        n_episodes=3,
+        seed_start=3000 + iteration * 20
+    )
+
+    # Optional diagnostic:
+    # How often did this learner disagree with the expert?
+    learner_actions = np.array([
+        cloned_action(dag_policy, state)
+        for state in new_states
+    ])
+
+    disagreement = np.mean( learner_actions != new_labels )
+
+    print(f"New examples: {len(new_states)}")
+    print(f"Expert disagreement: {disagreement:.1%}")
+
+    # STEP 2: Combine old and new examples
+    aggregated_X = np.concatenate([ aggregated_X, new_states ])
+
+    aggregated_y = np.concatenate([ aggregated_y, new_labels ])
+
+    print(f"Total examples: {len(aggregated_X)}")
+
+    # STEP 3: Train a new policy using ALL the examples
+    torch.manual_seed(100 + iteration)
+
+    dag_policy, losses = train_bc( aggregated_X, aggregated_y, epochs=80 )
+
+    # STEP 4: Evaluate the updated policy
+    env = gym.make("CartPole-v1")
+    scores = evaluate_controller( env,
+        lambda s: cloned_action(dag_policy, s),
+        n_episodes=12,
+        reset_bounds=0.15
+    )
+
+    print(f"Mean episode return: {scores.mean():.1f}")
+```
+
+So the DAgger sequence is:,
+
+![](figs/dagger-sequence.png)
+
+This completes two iterations of DAgger.
+
+
+## BC versus DAgger: A clear comparison {.scrollable}
+
+| Aspect                                                   | Behavior Cloning        | DAgger                            |
+| -------------------------------------------------------- | ----------------------- | --------------------------------- |
+| Who generates training states?                           | Expert                  | Initially expert, later learner   |
+| Who provides action labels?                              | Expert                  | Expert                            |
+| Who controls the environment during new data collection? | Expert                  | Learner (in our version)          |
+| Does dataset grow during training rounds?                | Typically no            | Yes                               |
+| Loss function                                            | Cross-entropy           | Cross-entropy                     |
+| Requires expert queries after initial demonstrations?    | No                      | Yes                               |
+| Can learn corrective actions for learner-visited states? | Limited by initial data | Explicitly collects such examples |
+| Purely offline?                                          | Can be                  | No, requires new rollouts         |
+
+The essential conceptual difference is a change in the state distribution used for supervised learning.
+
+Ordinary BC approximately minimizes action prediction error under the expert's state-visitation distribution:
+
+$$ 
+\mathbb E_{s\sim d^{\pi_E}} \left[ \ell(\pi_\theta(s),\pi_E(s)) \right]
+$$
+
+DAgger trains on a mixture of states generated by the expert and successive learned policies:
+
+$$
+\mathbb E_{s\sim d^{\text{aggregated}}} \left[ \ell(\pi_\theta(s),\pi_E(s)) \right]
+$$
+
+This provides experience with situations that the current learner is more likely to encounter.
+
+
+## One adjustment I would make to the original DAgger code {.scrollable}
+
+This is particularly relevant to the earlier observation:
+
+> BC under shifted starts: 172.8 steps; expert: 443.4 steps.
+
+Look at the existing DAgger function:
+
+```{python}
+#| echo: true
+#| eval: false
+obs, _ = env.reset( seed=seed_start + episode)
+```
+
+This uses the environment's default initialization range of ±0.05, while later you evaluate DAgger using ±0.15.
+
+DAgger can still collect unfamiliar states resulting from the learner's actions, but it isn't explicitly collecting from the shifted initial-state distribution you're investigating.
+
+For this experiment, I would revise the reset step to:
+
+```{python}
+#| echo: true
+#| eval: false
+obs, _ = env.reset( seed=seed_start + episode,    
+                    options={"low": -0.15,"high": 0.15}
+                )
+```
+
+This lets the learner experience the wider range of initial states during DAgger collection, with the expert providing corresponding labels.
+
+It may help improve the learner's ability to recover from initially unfamiliar conditions. The improvement is not guaranteed, and the shifted starts may produce shorter episodes and fewer training examples.
+
+So, now, let's compare by doing more experiments:
+
+| Model    | Training-data source               | Evaluation starts |
+| -------- | ---------------------------------- | ----------------- |
+| BC       | Expert trajectories, ±0.05 starts  | ±0.15             |
+| DAgger A | Learner trajectories, ±0.05 starts | ±0.15             |
+| DAgger B | Learner trajectories, ±0.15 starts | ±0.15             |
+| Expert   | Scripted controller                | ±0.15             |
+
+Use identical evaluation seeds and preferably 50–100 episodes for each policy.
+
+> This is an excellent way to distinguish collecting more examples from collecting examples relevant to the conditions where the learner struggles.
+
+
+## 2 Questions for you {.scrollable}
+**Q1.** Where was the reward function used in the Behavior Cloning loss?
+
+:::{.incremental}
+- *Answer:* Nowhere. Only expert state-action pairs trained the classifier; rewards were used solely for evaluating policy performance.
+:::
+
+**Q2.** Suppose you're prohibited from running your learner at all and can access only a fixed database \((s,a,r,s',done)\). Could you still execute DAgger?  
+
+:::{.incremental}
+- *Answer:* No. DAgger needs interaction to get new learner-visited states and their expert labels. A fixed transition dataset motivates **offline RL** (*a topic to cover next in this course*).
+:::
+
+**Q3.** Suppose the expert makes the correct decision in a particular state, but the cloned agent makes the wrong decision. During DAgger: Should we record the action taken by the learner or the action recommended by the expert as the training target?
+
+:::{.incremental}
+* The correct answer is the expert's action.
+    - The learner's action is still important because it determines the state the environment visits next. But if we used the learner's own action as the training target, we would be training it to reproduce its existing behavior—including its mistakes.
+    - DAgger instead learns from expert decisions in the states the learner causes itself to encounter.
+    - That is the central idea
+:::
+
+
+
+> Behavior Cloning learns from where the expert goes. DAgger learns what the expert would do where the learner goes.
+
+
+Note: the two ideas presented here today lead to the next lecture naturally: both still depend on expert labels, while Offline RL attempts to learn from recorded state transitions and rewards, potentially improving upon the historical behavior.
+
+
+### Takeaways {.scrollable}
+
+> A policy that imitates an expert well under familiar conditions is not necessarily robust to unfamiliar conditions.
+>
+> The ability to reproduce expert decisions is different from the ability to recover from mistakes and maintain good long-term performance.
+
+## Where to go from here? {.scrollable}
+
+1. Train BC with 1, 2, 4, and 8 expert episodes. Compare **expert-action classification accuracy** with **actual episode return**.
+2. Increase the reset range from `0.05` to `0.15`, then `0.18`. Quantify robustness; if the environment terminates quickly, explain why.
+3. Introduce noisy expert labels (e.g. flip 5% of actions). Investigate policy performance.
+4. For graduate students: replace the scripted expert with a saved PPO policy from an earlier lecture, and compare the two teachers.
+5. Explain why DAgger is different from offline RL.
+
+
+## Thanks {.scrollable}

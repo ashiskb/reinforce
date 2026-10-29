@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   font-family="-apple-system-body, ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica, Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol"
+   font-weight="400"
+   data-d-component="svg"
+   fill="currentColor"
+   style="color:rgb(13, 13, 13)"
+   viewBox="0 0 340 124"
+   width="100%"
+   version="1.1"
+   id="svg7"
+   sodipodi:docname="distinction-ppo-vs-imitation-learning.svg"
+   inkscape:version="1.3 (0e150ed, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs7" />
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.9032258"
+     inkscape:cx="170.23729"
+     inkscape:cy="62"
+     inkscape:window-width="1312"
+     inkscape:window-height="449"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg7" />
+  <g
+     id="g8">
+    <rect
+       x="4"
+       y="27"
+       width="88"
+       height="66"
+       rx="9"
+       fill="#64748b"
+       fill-opacity=".12"
+       stroke="#64748b"
+       id="rect1" />
+    <text
+       x="48"
+       y="52"
+       text-anchor="middle"
+       fill="currentColor"
+       font-size="11"
+       font-weight="600"
+       id="text1">Expert</text>
+    <text
+       x="48"
+       y="67"
+       text-anchor="middle"
+       fill="currentColor"
+       font-size="11"
+       font-weight="600"
+       id="text2">policy</text>
+    <rect
+       x="126"
+       y="27"
+       width="88"
+       height="66"
+       rx="9"
+       fill="#64748b"
+       fill-opacity=".12"
+       stroke="#64748b"
+       id="rect2" />
+    <text
+       x="170"
+       y="52"
+       text-anchor="middle"
+       fill="currentColor"
+       font-size="11"
+       font-weight="600"
+       id="text3">Demonstrations</text>
+    <text
+       x="170"
+       y="67"
+       text-anchor="middle"
+       fill="currentColor"
+       font-size="11"
+       font-weight="600"
+       id="text4" />
+    <rect
+       x="248"
+       y="27"
+       width="88"
+       height="66"
+       rx="9"
+       fill="#64748b"
+       fill-opacity=".12"
+       stroke="#64748b"
+       id="rect4" />
+    <text
+       x="292"
+       y="52"
+       text-anchor="middle"
+       fill="currentColor"
+       font-size="11"
+       font-weight="600"
+       id="text5">Learned</text>
+    <text
+       x="292"
+       y="67"
+       text-anchor="middle"
+       fill="currentColor"
+       font-size="11"
+       font-weight="600"
+       id="text6">policy</text>
+    <g
+       stroke="#64748b"
+       stroke-width="1.5"
+       fill="none"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       id="g7">
+      <path
+         d="M94 60 H121 M115 55 L121 60 L115 65"
+         id="path6" />
+      <path
+         d="M216 60 H243 M237 55 L243 60 L237 65"
+         id="path7" />
+    </g>
+    <text
+       x="170"
+       y="113"
+       text-anchor="middle"
+       font-size="10"
+       fill="#64748b"
+       id="text7">Observe behavior → train supervised model</text>
+  </g>
+</svg>

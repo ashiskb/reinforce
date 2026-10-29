@@ -40,3 +40,6 @@ Welcome to another semester with Reinforcement Learning!
 ## Week 9 (10/12 -- 10/16)
 * From Actor-Critic to PPO and to Racing [lecture-slide](week-09/Actor-Critic-to-PPO.html)
 
+## Week 10 and 11 (10/19 -- 10/30)
+* Imitation Learning, Behavior Cloning and DAgger [lecture-slide](week-10/Imitation-Learning+behavior-cloning.html)
+
